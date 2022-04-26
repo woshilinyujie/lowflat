@@ -1,14 +1,18 @@
 package ru.sir.ymodem;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.van.uart.LastError;
 import com.van.uart.UartManager;
 import com.wl.wlflatproject.MUtils.Constants;
 import com.wl.wlflatproject.MUtils.PostEventBus;
+import com.wl.wlflatproject.MUtils.SerialPortUtil;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import android_serialport_api.SerialPort;
 
 
 /**
@@ -42,6 +46,8 @@ class Modem {
     protected Modem(UartManager manager) {
         mUartManager = manager;
     }
+    protected Modem() {
+    }
 
 
     /**
@@ -51,51 +57,48 @@ class Modem {
      * @return TRUE if receiver requested CRC-16 checksum, FALSE if 8bit checksum
      * @throws IOException
      */
-    protected boolean waitReceiverRequest(Timer timer) throws IOException {
-        PostEventBus.post("Connecting ...");
+    protected boolean waitReceiverRequest(Timer timer,SerialPortUtil serialPortUtil) throws IOException {
+        Log.e("固件升级---","准备正式发数据了");
         int character;
         while (true) {
             try {
-                character = readByte(timer);
+                character = readByte(timer,serialPortUtil);
                 if (character == NAK)
                     return false;
                 if (character == ST_C) {
                     return true;
                 }
             } catch (TimeoutException e) {
-                PostEventBus.post("TimeOut,Please try again!!");
-                throw new IOException("Timeout waiting for receiver");
+                Log.e("固件升级---","超时");
+                throw new IOException("固件升级---超时");
             }
         }
     }
 
-    protected void sendDataBlocks(DataInputStream dataStream, int blockNumber, CRC crc, byte[] block) throws IOException {
-        PostEventBus.post("write file start ...");
+    protected void sendDataBlocks(DataInputStream dataStream, int blockNumber, CRC crc, byte[] block,SerialPortUtil serialPortUtil) throws IOException {
+        Log.e("固件升级---","正式开始传数据");
         int dataLength;
         while ((dataLength = dataStream.read(block)) != -1) {
-            //PostEventBus.post("send data ..." + dataLength);
-            PostEventBus.post("...");
-            sendBlock(blockNumber++, block, dataLength, crc);
+            Log.e("固件升级---","写了："+dataLength);
+            sendBlock(blockNumber++, block, dataLength, crc,serialPortUtil);
         }
-        PostEventBus.post("\nwrite file finish ...");
+        Log.e("固件升级---","数据传输完成");
     }
 
-    protected void sendEOT() throws IOException {
-        PostEventBus.post("application start! ...");
-        PostEventBus.post("http://www.unistrong.com.cn");
+    protected void sendEOT(SerialPortUtil serialPortUtil) throws IOException {
         int errorCount = 0;
         Timer timer = new Timer(BLOCK_TIMEOUT);
         int character;
         while (errorCount < 10) {
-            sendByte(EOT);
+            serialPortUtil.sendDate(new byte[EOT]);
             try {
-                character = readByte(timer.start());
+                character = readByte(timer.start(),serialPortUtil);
                 if (character == ACK) {
-                    PostEventBus.post("pro_" + (Constants.sCurrentPro++));
+//                    PostEventBus.post("pro_" + (Constants.sCurrentPro++));
                     return;
                 } else if (character == CAN) {
-                    PostEventBus.post("Transmission terminated");
-                    throw new IOException("Transmission terminated");
+                    Log.e("固件升级---","传播中断");
+                    throw new IOException("固件升级---传播中断");
                 }
             } catch (TimeoutException ignored) {
             }
@@ -103,7 +106,7 @@ class Modem {
         }
     }
 
-    protected void sendBlock(int blockNumber, byte[] block, int dataLength, CRC crc) throws IOException {
+    protected void sendBlock(int blockNumber, byte[] block, int dataLength, CRC crc, SerialPortUtil serialPortUtil) throws IOException {
         int errorCount;
         int character;
         Timer timer = new Timer(SEND_BLOCK_TIMEOUT);
@@ -117,26 +120,26 @@ class Modem {
             timer.start();
 
             if (block.length == 1024)
-                write(new byte[]{STX});
+                serialPortUtil.sendDate(new byte[]{STX});
             else //128
-                write(new byte[]{SOH});
+                serialPortUtil.sendDate(new byte[]{SOH});
 
-            write(new byte[]{(byte) blockNumber});
-            write(new byte[]{((byte) ~blockNumber)});
-            write(block);
-            writeCRC(block, crc);
+            serialPortUtil.sendDate(new byte[]{(byte) blockNumber});
+            serialPortUtil.sendDate(new byte[]{((byte) ~blockNumber)});
+            serialPortUtil.sendDate(block);
+            writeCRC(block, crc,serialPortUtil);
             while (true) {
                 try {
-                    character = readByte(timer);
+                    character = readByte(timer,serialPortUtil);
                     if (character == ACK) {
-                        PostEventBus.post("pro_" + (Constants.sCurrentPro++));
+//                        PostEventBus.post("pro_" + (Constants.sCurrentPro++));
                         return;
                     } else if (character == NAK) {
                         errorCount++;
                         break;
                     } else if (character == CAN) {
-                        PostEventBus.post("Transmission terminated");
-                        throw new IOException("Transmission terminated");
+                        Log.e("固件升级---","传播中断");
+                        throw new IOException("固件升级---传播中断");
                     }
                 } catch (TimeoutException e) {
                     errorCount++;
@@ -145,17 +148,17 @@ class Modem {
             }
 
         }
-        PostEventBus.post("Too many errors caught, abandoning transfer");
-        throw new IOException("Too many errors caught, abandoning transfer");
+        Log.e("固件升级","报错次数太多不传了");
+        throw new IOException("报错次数太多不传了");
     }
 
-    private void writeCRC(byte[] block, CRC crc) throws IOException {
+    private void writeCRC(byte[] block, CRC crc,SerialPortUtil serialPortUtil) throws IOException {
         byte[] crcBytes = new byte[crc.getCRCLength()];
         long crcValue = crc.calcCRC(block);
         for (int i = 0; i < crc.getCRCLength(); i++) {
             crcBytes[crc.getCRCLength() - i - 1] = (byte) ((crcValue >> (8 * i)) & 0xFF);
         }
-        write(crcBytes);
+        serialPortUtil.sendDate(crcBytes);
     }
 
 
@@ -186,16 +189,17 @@ class Modem {
     }
 
 
-    private byte readByte(Timer timer) throws IOException, TimeoutException {
+    private char readByte(Timer timer, SerialPortUtil serialPortUtil) throws IOException, TimeoutException {
         while (true) {
-            byte[] buf = new byte[1];
+            char[] buf = new char[1];
             try {
-                int read = mUartManager.read(buf, 1, 100, 20);
+                int read = serialPortUtil.inputStream.read(buf, 0, 1);
+//                int read = mUartManager.read(buf, 1, 100, 20);
                 if (read > 0) {
                     return buf[0];
                 }
-            } catch (LastError lastError) {
-                Log.e("gh0st", lastError.toString());
+            } catch (Exception lastError) {
+                Log.e("固件升级报错--", lastError.toString());
                 lastError.printStackTrace();
             }
             if (timer.isExpired()) {

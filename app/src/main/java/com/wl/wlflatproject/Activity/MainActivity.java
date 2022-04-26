@@ -287,6 +287,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     requestPermission();
                     sendEmptyMessageDelayed(14, 3600 * 1000);
                     break;
+                case 15:
+                    serialPort.flag=true;
+                    serialPort.readCode(dataListener);
+                    break;
             }
         }
     };
@@ -312,7 +316,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private String mThirdCode = "";
     private YmodleUtils ymodleUtils;
     private ExecutorService threads;
-
+    private SerialPortUtil.DataListener dataListener;
+    private YModem yModem;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -331,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     private void initData() {
-        threads = Executors.newFixedThreadPool(1);
+        threads = Executors.newFixedThreadPool(3);
         devMonitorPresenter = new DevMonitorPresenter(this, bg, funView, time);
         devMonitorPresenter.setChannelId(0);
         normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -613,8 +618,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
      */
     private void initSerialPort() {
         serialPort = SerialPortUtil.getInstance();
+        serialPort.setThread(threads);
         handler.sendEmptyMessageDelayed(5, 2000);
-        serialPort.readCode(new SerialPortUtil.DataListener() {
+        dataListener=new SerialPortUtil.DataListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
             @Override
             public void getData(String data) {//串口返回数据
@@ -791,9 +797,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                 QtimesServiceManager.instance().setLongOpenState(false);
                             }
                         } else if (data.contains("AT+CDWAKE=1")) {    //有人   但是不打开视频
-                                writeFile(file, 2 + "");//打开屏幕
-                                handler.removeMessages(3);
-                                handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
+                            writeFile(file, 2 + "");//打开屏幕
+                            handler.removeMessages(3);
+                            handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
                         } else if (data.contains("AT+CDBELL=1")) {   //门铃
                             handler.removeMessages(1);
                             handler.sendEmptyMessageDelayed(1, 20000);
@@ -904,7 +910,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     }
                 });
             }
-        });
+        };
+
+        serialPort.readCode(dataListener);
     }
 
 
@@ -1504,6 +1512,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         });
     }
 
+
     /**
      * 固件升级
      *
@@ -1539,19 +1548,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 Gson gson = new Gson();
                 try {
                     UpdateAppBean updateAppBean = gson.fromJson(s, UpdateAppBean.class);
-                    if (version>0) {
+                    if (Integer.parseInt(updateAppBean.getPUS().getBody().getNew_version()) > version) {
                         downloadFile(updateAppBean.getPUS().getBody().getUrl());
                     }
                 } catch (Exception e) {
                     Log.e("升级接口报错", e.toString());
                 }
             }
-             @Override
+            @Override
             public void onError(Response<String> response) {
             }
         });
     }
-
 
     //下载apk文件并跳转(第二次请求，get)
     private void downloadApp(String apk_url) {
@@ -1603,33 +1611,34 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         OkGo.<File>get(apk_url).tag(this).execute(new FileCallback() {
             @Override
             public void onError(Response<File> response) {
-                Log.e("固件下载","下载失败");
+                Log.e("固件下载", "下载失败");
             }
 
             @Override
             public void onSuccess(Response<File> response) {
                 String filePath = response.body().getAbsolutePath();
-                File file=new File(filePath);
-                Log.e("固件下载","下载成功："+filePath);
-                if(file.exists()){
-                    Constants.sCurrentPro = 0;
-                    Constants.sCountPro = 0;
-                    if(ymodleUtils==null)
-                        ymodleUtils = new YmodleUtils(MainActivity.this);
-                    ymodleUtils.writeData();
+                File file = new File(filePath);
+                Log.e("固件下载", "下载成功：" + filePath);
+                if (file.exists()) {
+                    //暂停一下 别的 接收
+                    serialPort.flag=false;
                     threads.execute(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                if (ymodleUtils.mUartManager.isOpen()) {
-                                    new YModem(ymodleUtils.mUartManager).send(file);
+                                Thread.sleep(100);
+                                if(yModem==null) {
+                                    yModem = new YModem();
                                 }
-                            } catch (IOException e) {
-                                Log.e("gh0st", e.toString());
+                                yModem.send(file,serialPort);
+                            } catch (Exception e) {
+                                Log.e("固件升级抛出错误---", e.toString());
+                            }finally {
+                                Log.e("固件升---","结束");
+                                handler.sendEmptyMessage(15);
                             }
                         }
                     });
-
                 }
             }
         });
