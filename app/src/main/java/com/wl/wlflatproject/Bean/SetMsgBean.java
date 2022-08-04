@@ -4,7 +4,12 @@ public class SetMsgBean {
 
     private String msg;
     private int flag;
+    public  SetMsgBean(){
 
+    }
+    public  SetMsgBean(int flat){
+        this.flag=flat;
+    }
     public void setFlag(int flag) {
         this.flag = flag;
     }

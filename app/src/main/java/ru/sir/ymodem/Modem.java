@@ -78,9 +78,12 @@ class Modem {
     protected void sendDataBlocks(DataInputStream dataStream, int blockNumber, CRC crc, byte[] block,SerialPortUtil serialPortUtil) throws IOException {
         Log.e("固件升级---","正式开始传数据");
         int dataLength;
+        int count=0;
         while ((dataLength = dataStream.read(block)) != -1) {
-            Log.e("固件升级---","写了："+dataLength);
-            sendBlock(blockNumber++, block, dataLength, crc,serialPortUtil);
+            Log.e("固件升级---","写了："+dataLength+"次数"+count);
+            count++;
+            sendBlock(blockNumber++, block, dataLength, crc,serialPortUtil,false);
+            block = new byte[1024];
         }
         Log.e("固件升级---","数据传输完成");
     }
@@ -90,7 +93,10 @@ class Modem {
         Timer timer = new Timer(BLOCK_TIMEOUT);
         int character;
         while (errorCount < 10) {
-            serialPortUtil.sendDate(new byte[EOT]);
+            byte[] end={EOT};
+            byte[] bytes = byteMerger("+HMB:".getBytes(), end);
+            serialPortUtil.sendDate(bytes);
+            serialPortUtil.sendDate("\r\n".getBytes());
             try {
                 character = readByte(timer.start(),serialPortUtil);
                 if (character == ACK) {
@@ -106,7 +112,7 @@ class Modem {
         }
     }
 
-    protected void sendBlock(int blockNumber, byte[] block, int dataLength, CRC crc, SerialPortUtil serialPortUtil) throws IOException {
+    protected void sendBlock(int blockNumber, byte[] block, int dataLength, CRC crc, SerialPortUtil serialPortUtil,boolean isEnd) throws IOException {
         int errorCount;
         int character;
         Timer timer = new Timer(SEND_BLOCK_TIMEOUT);
@@ -119,13 +125,23 @@ class Modem {
         while (errorCount < MAXERRORS) {
             timer.start();
 
-            if (block.length == 1024)
-                serialPortUtil.sendDate(new byte[]{STX});
-            else //128
-                serialPortUtil.sendDate(new byte[]{SOH});
+            if (block.length == 1024){
+                byte[] bytes = byteMerger("+HMB:".getBytes(), new byte[]{STX});
+                serialPortUtil.sendDate(bytes);
 
-            serialPortUtil.sendDate(new byte[]{(byte) blockNumber});
-            serialPortUtil.sendDate(new byte[]{((byte) ~blockNumber)});
+            } else{ //128
+                if(isEnd){
+                    byte[] bytes = byteMerger("+HMB:".getBytes(), new byte[]{SOH,00, (byte) ~blockNumber});
+                    serialPortUtil.sendDate(bytes);
+                }else{
+                    byte[] bytes = byteMerger("+HMB:".getBytes(), new byte[]{SOH});
+                    serialPortUtil.sendDate(bytes);
+                }
+            }
+            if(!isEnd){
+                serialPortUtil.sendDate(new byte[]{(byte) blockNumber});
+                serialPortUtil.sendDate(new byte[]{((byte) ~blockNumber)});
+            }
             serialPortUtil.sendDate(block);
             writeCRC(block, crc,serialPortUtil);
             while (true) {
@@ -159,6 +175,7 @@ class Modem {
             crcBytes[crc.getCRCLength() - i - 1] = (byte) ((crcValue >> (8 * i)) & 0xFF);
         }
         serialPortUtil.sendDate(crcBytes);
+        serialPortUtil.sendDate("\r\n".getBytes());
     }
 
 
@@ -194,6 +211,7 @@ class Modem {
             char[] buf = new char[1];
             try {
                 int read = serialPortUtil.inputStream.read(buf, 0, 1);
+                Log.e("固件升级读取---",read+"");
 //                int read = mUartManager.read(buf, 1, 100, 20);
                 if (read > 0) {
                     return buf[0];
@@ -215,6 +233,13 @@ class Modem {
         } catch (LastError lastError) {
             lastError.printStackTrace();
         }
+    }
+
+    public  byte[] byteMerger(byte[] byte_1, byte[] byte_2){
+        byte[] byte_3 = new byte[byte_1.length+byte_2.length];
+        System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
+        System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
+        return byte_3;
     }
 }
 

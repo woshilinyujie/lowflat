@@ -13,6 +13,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -274,12 +275,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 case 9:
                     setting.setVisibility(View.GONE);
                     break;
-                case 10:
-                    if (!QtimesServiceManager.instance().isServerActive()) {
-                        QtimesServiceManager.instance().connect(MainActivity.this);
-                    }
-                    handler.sendEmptyMessageDelayed(10, 30 * 60 * 1000);
-                    break;
                 case 13:
                     hideBottomUIMenu();
                     break;
@@ -318,6 +313,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private ExecutorService threads;
     private SerialPortUtil.DataListener dataListener;
     private YModem yModem;
+    private File downLoadFile;
+    private String fileUrl;
+    private IntentFilter intentFilter;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -388,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bean.setVendor("general");
         stateJson = GsonUtils.GsonString(bean);
         receiver = new NetStatusReceiver();
-        IntentFilter intentFilter = new IntentFilter();
+        intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(receiver, intentFilter);
         codeBt.setOnLongClickListener(new View.OnLongClickListener() {
@@ -415,7 +413,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         handler.sendEmptyMessage(4);
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
-        handler.sendEmptyMessageDelayed(10, 10000);
         codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle);
     }
 
@@ -492,6 +489,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                 break;
             case R.id.changkai:
+//                downLoadFile = new File( "/storage/emulated/0/Download/Gate_注释小角度慢速度防夹_20211207.bin");
+//                if (downLoadFile.exists()) {
+//                    //暂停一下 别的 接收
+//                    serialPort.flag=false;
+//                    serialPort.sendDate(("+REQUESTACK" +"\r\n").getBytes());
+//                }
                 if (changkaiFlag == 1) {
                     dialogTime.show();
                     serialPort.sendDate("+ALWAYSOPEN\r\n".getBytes());
@@ -906,6 +909,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                     SPUtil.getInstance(MainActivity.this).setSettingParam("checkNum", checkNum);
                                     break;
                             }
+                        }else if (data.contains("AT+REQUESTACK=1")) {
+                            unregisterReceiver(receiver);
+                            handler.removeMessages(0);
+                            threads.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(100);
+                                        if(yModem==null) {
+                                            yModem = new YModem();
+                                        }
+                                        yModem.send(downLoadFile,serialPort);
+                                        EventBus.getDefault().post(new SetMsgBean(8));
+                                    } catch (Exception e) {
+                                        EventBus.getDefault().post(new SetMsgBean(7));
+                                        Log.e("固件升级抛出错误---", e.toString());
+                                    }finally {
+                                        Log.e("固件升---","结束");
+                                        handler.sendEmptyMessage(15);
+                                        handler.sendEmptyMessage(0);
+                                        registerReceiver(receiver, intentFilter);
+                                    }
+                                }
+                            });
                         }
                     }
                 });
@@ -1003,6 +1030,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 break;
             case 12://关闭人流检测
                 serialPort.sendDate(("+ANGLEREPAIR:" + msg + "\r\n").getBytes());
+                break;
+            case 13://后板升级校验
+                requestFileUpdate(0);
+                break;
+            case 14://确认升级
+                downloadFile(fileUrl);
                 break;
             case 21://设置门类型
                 if (msg.equals("1")) {//母门
@@ -1540,7 +1573,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         String s = GsonUtils.GsonString(updataJsonBean);
         String path = "";
-        path = "https://pus.wonlycloud.com:10400";
+        path = "https://pus.wonlycloud.com:10400 ";
         OkGo.<String>post(path).upJson(s).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -1549,7 +1582,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 try {
                     UpdateAppBean updateAppBean = gson.fromJson(s, UpdateAppBean.class);
                     if (Integer.parseInt(updateAppBean.getPUS().getBody().getNew_version()) > version) {
-                        downloadFile(updateAppBean.getPUS().getBody().getUrl());
+                        EventBus.getDefault().post(new SetMsgBean(6));
+                        fileUrl = updateAppBean.getPUS().getBody().getUrl();
+                    }else{
+                        EventBus.getDefault().post(new SetMsgBean(5));
                     }
                 } catch (Exception e) {
                     Log.e("升级接口报错", e.toString());
@@ -1617,28 +1653,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             @Override
             public void onSuccess(Response<File> response) {
                 String filePath = response.body().getAbsolutePath();
-                File file = new File(filePath);
+                downLoadFile = new File(filePath);
                 Log.e("固件下载", "下载成功：" + filePath);
-                if (file.exists()) {
+                if (downLoadFile.exists()) {
                     //暂停一下 别的 接收
                     serialPort.flag=false;
-                    threads.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(100);
-                                if(yModem==null) {
-                                    yModem = new YModem();
-                                }
-                                yModem.send(file,serialPort);
-                            } catch (Exception e) {
-                                Log.e("固件升级抛出错误---", e.toString());
-                            }finally {
-                                Log.e("固件升---","结束");
-                                handler.sendEmptyMessage(15);
-                            }
-                        }
-                    });
+                    serialPort.sendDate(("+REQUESTACK" +"\r\n").getBytes());
                 }
             }
         });

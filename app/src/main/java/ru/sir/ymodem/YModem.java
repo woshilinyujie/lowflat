@@ -55,14 +55,21 @@ public class YModem {
             //send block 0
             String fileNameString = file.getName() + (char) 0 + /*getFileSizes(file)*/ file.length() + ' ';
             byte[] fileNameBytes = Arrays.copyOf(fileNameString.getBytes(), 128);
-            modem.sendBlock(0, Arrays.copyOf(fileNameBytes, 128), 128, crc,serialPortUtil);
+            modem.sendBlock(0, Arrays.copyOf(fileNameBytes, 128), 128, crc,serialPortUtil,false);
 
             modem.waitReceiverRequest(timer,serialPortUtil);
             //send data
             byte[] block = new byte[1024];
+//            block[0]=43;
+//            block[1]=72;
+//            block[2]=77;
+//            block[3]=66;
+//            block[4]=58;
             modem.sendDataBlocks(dataStream, 1, crc, block,serialPortUtil);
 
             modem.sendEOT(serialPortUtil);
+            byte[] endBlock = new byte[128];
+            modem.sendBlock(0,endBlock, 128, crc,serialPortUtil,true);
         }
     }
 

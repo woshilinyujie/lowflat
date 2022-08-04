@@ -77,6 +77,7 @@ public class AppContext extends Application {
         HttpHeaders headers = new HttpHeaders();
         //标识应用名称，可取值：新版王力智能（wonlynew）、老版王力智能（wonlyold）
         headers.put("appId", "wonlynew");
+        headers.put("Connection", "close");
         //标识手机系统平台，可取值：
         // ios（苹果系统）、android（安卓系统）、iosHD（苹果平板系统）、
         // androidHD（安卓平板系统）、wm7（微软手机系统）

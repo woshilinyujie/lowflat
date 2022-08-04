@@ -16,8 +16,10 @@ import com.qtimes.service.wonly.client.QtimesServiceManager;
 import com.wl.wlflatproject.Bean.MainMsgBean;
 import com.wl.wlflatproject.Bean.SetMsgBean;
 import com.wl.wlflatproject.MUtils.SPUtil;
+import com.wl.wlflatproject.MUtils.SerialPortUtil;
 import com.wl.wlflatproject.MView.NormalDialog;
 import com.wl.wlflatproject.MView.SetDialog;
+import com.wl.wlflatproject.MView.UpDateDialogTime;
 import com.wl.wlflatproject.MView.WaitDialogTime;
 import com.wl.wlflatproject.R;
 
@@ -60,6 +62,7 @@ public class SettingActivity1 extends AppCompatActivity {
     private SetDialog.ResultListener listener;
     private MainMsgBean mainMsgBean;
     private WaitDialogTime waitDialogTime;
+    private UpDateDialogTime upDateDialogTime;
     private NormalDialog normalDialog;
     private Intent setIntent;
 
@@ -102,13 +105,46 @@ public class SettingActivity1 extends AppCompatActivity {
                 if (!TextUtils.isEmpty(value))
                     waitTimeTv.setText(value + "秒");
                 break;
-
-
+            case 5:
+                waitDialogTime.dismiss();
+                Toast.makeText(SettingActivity1.this, "当前版本已经是最新版本", Toast.LENGTH_SHORT).show();
+                break;
+            case 6:
+                waitDialogTime.dismiss();
+                if (normalDialog == null)
+                    normalDialog = new NormalDialog(this, R.style.mDialog);
+                normalDialog.show();
+                normalDialog.setTitleText("发现新版本");
+                normalDialog.setContentText("确认升级？");
+                normalDialog.getConfirmTv().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        normalDialog.dismiss();
+                        if (upDateDialogTime == null)
+                            upDateDialogTime = new UpDateDialogTime(SettingActivity1.this, android.R.style.Theme_Translucent_NoTitleBar);
+                        upDateDialogTime.setWaitText("升级中请等待...");
+                        upDateDialogTime.show();
+                        if (mainMsgBean == null)
+                            mainMsgBean = new MainMsgBean();
+                        mainMsgBean.setMsg("");
+                        mainMsgBean.setFlag(14);
+                        EventBus.getDefault().post(mainMsgBean);
+                    }
+                });
+                break;
+            case 7:
+                upDateDialogTime.dismiss();
+                Toast.makeText(SettingActivity1.this, "升级出错", Toast.LENGTH_SHORT).show();
+                break;
+            case 8:
+                upDateDialogTime.dismiss();
+                Toast.makeText(SettingActivity1.this, "升级成功", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
 
-    @OnClick({R.id.door_select,R.id.entry_door,R.id.experience,R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
+    @OnClick({R.id.update,R.id.door_select, R.id.entry_door, R.id.experience, R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
     public void onViewClicked(View view) {
         if (setDialog == null) {
             setDialog = new SetDialog(SettingActivity1.this, R.style.mDialog);
@@ -118,10 +154,20 @@ public class SettingActivity1 extends AppCompatActivity {
             case R.id.back:
                 finish();
                 break;
+            case R.id.update:
+                if (waitDialogTime == null)
+                    waitDialogTime = new WaitDialogTime(SettingActivity1.this, android.R.style.Theme_Translucent_NoTitleBar);
+                waitDialogTime.show();
+                if (mainMsgBean == null)
+                    mainMsgBean = new MainMsgBean();
+                mainMsgBean.setMsg("");
+                mainMsgBean.setFlag(13);
+                EventBus.getDefault().post(mainMsgBean);
+                break;
             case R.id.setting:
                 Intent intent = new Intent(SettingActivity1.this, SettingActivity.class);
                 intent.putExtras(setIntent);
-                startActivityForResult(intent,500);
+                startActivityForResult(intent, 500);
                 break;
             case R.id.door_select:
                 Intent intent2 = new Intent(SettingActivity1.this, DoorSelectActivity.class);
@@ -217,7 +263,7 @@ public class SettingActivity1 extends AppCompatActivity {
                     }
                 });
 
-            break;
+                break;
             case R.id.restart://系统重启
                 if (normalDialog == null)
                     normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -242,19 +288,20 @@ public class SettingActivity1 extends AppCompatActivity {
                     normalDialog = new NormalDialog(this, R.style.mDialog);
                 normalDialog.show();
                 normalDialog.setTitleText("防夹");
-                if(a){
+                if (a) {
                     normalDialog.setContentText("点击关闭防夹");
-                }else {
+                } else {
                     normalDialog.setContentText("点击开启防夹");
                 }
                 normalDialog.getConfirmTv().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         normalDialog.dismiss();
-                        if (!QtimesServiceManager.instance().isServerActive()) {
-                            QtimesServiceManager.instance().connect(SettingActivity1.this);
-                        }
-                        boolean b = QtimesServiceManager.instance().resetAntiPinch();
+//                        if (!QtimesServiceManager.instance().isServerActive()) {
+//                            QtimesServiceManager.instance().connect(SettingActivity1.this);
+//                        }
+//                        boolean b = QtimesServiceManager.instance().resetAntiPinch();
+                        SerialPortUtil.getInstance().sendDate(("+OPENFG" + "\r\n").getBytes());
                     }
                 });
                 break;
@@ -264,9 +311,9 @@ public class SettingActivity1 extends AppCompatActivity {
                     normalDialog = new NormalDialog(this, R.style.mDialog);
                 normalDialog.show();
                 normalDialog.setTitleText("入户即关");
-                if(status){
+                if (status) {
                     normalDialog.setContentText("点击关闭入户即关");
-                }else {
+                } else {
                     normalDialog.setContentText("点击开启入户即关");
                 }
                 normalDialog.getConfirmTv().setOnClickListener(new View.OnClickListener() {
@@ -293,8 +340,8 @@ public class SettingActivity1 extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 200) {
-        }else if(resultCode==300){
-            setIntent=data;
+        } else if (resultCode == 300) {
+            setIntent = data;
         }
     }
 
