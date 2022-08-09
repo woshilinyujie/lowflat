@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.qtimes.service.wonly.client.QtimesServiceManager;
 import com.wl.wlflatproject.Bean.MainMsgBean;
 import com.wl.wlflatproject.Bean.SetMsgBean;
+import com.wl.wlflatproject.MUtils.CMDUtils;
 import com.wl.wlflatproject.MUtils.SPUtil;
 import com.wl.wlflatproject.MUtils.SerialPortUtil;
 import com.wl.wlflatproject.MView.NormalDialog;
@@ -39,6 +40,8 @@ public class SettingActivity1 extends AppCompatActivity {
     TextView waitTimeTv;
     @BindView(R.id.num_tv)
     TextView numTv;
+    @BindView(R.id.anti_pinch_tv)
+    TextView antiPinchTv;
     @BindView(R.id.num_rl)
     RelativeLayout numRl;
     @BindView(R.id.activation)
@@ -79,6 +82,11 @@ public class SettingActivity1 extends AppCompatActivity {
         EventBus.getDefault().register(this);
         Intent intent = getIntent();
         waitTimeTv.setText(intent.getStringExtra("openDoorWaitTime") + "秒");
+        if(getIntent().getBooleanExtra("isOPenClamp",false)){
+            antiPinchTv.setText("开");
+        }else{
+            antiPinchTv.setText("关");
+        }
         listener = new SetDialog.ResultListener() {
             @Override
             public void onResult(String value, int flag) {
@@ -105,11 +113,11 @@ public class SettingActivity1 extends AppCompatActivity {
                 if (!TextUtils.isEmpty(value))
                     waitTimeTv.setText(value + "秒");
                 break;
-            case 5:
+            case CMDUtils.CURRENT_NEW_VERSION:
                 waitDialogTime.dismiss();
                 Toast.makeText(SettingActivity1.this, "当前版本已经是最新版本", Toast.LENGTH_SHORT).show();
                 break;
-            case 6:
+            case CMDUtils.FIND_NEW_VERSION:
                 waitDialogTime.dismiss();
                 if (normalDialog == null)
                     normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -127,18 +135,26 @@ public class SettingActivity1 extends AppCompatActivity {
                         if (mainMsgBean == null)
                             mainMsgBean = new MainMsgBean();
                         mainMsgBean.setMsg("");
-                        mainMsgBean.setFlag(14);
+                        mainMsgBean.setFlag(CMDUtils.WAIT_UPDATE);
                         EventBus.getDefault().post(mainMsgBean);
                     }
                 });
                 break;
-            case 7:
+            case CMDUtils.UPDATE_ERRO:
                 upDateDialogTime.dismiss();
                 Toast.makeText(SettingActivity1.this, "升级出错", Toast.LENGTH_SHORT).show();
                 break;
-            case 8:
+            case CMDUtils.UPDATE_SUCCESS:
                 upDateDialogTime.dismiss();
                 Toast.makeText(SettingActivity1.this, "升级成功", Toast.LENGTH_SHORT).show();
+                break;
+            case CMDUtils.OPEN_CLAMP:
+                Toast.makeText(SettingActivity1.this, "设置成功", Toast.LENGTH_SHORT).show();
+                if(setMsgBean.getMsg().equals("0")){
+                    antiPinchTv.setText("关");
+                }else{
+                    antiPinchTv.setText("开");
+                }
                 break;
         }
     }
@@ -161,7 +177,7 @@ public class SettingActivity1 extends AppCompatActivity {
                 if (mainMsgBean == null)
                     mainMsgBean = new MainMsgBean();
                 mainMsgBean.setMsg("");
-                mainMsgBean.setFlag(13);
+                mainMsgBean.setFlag(CMDUtils.BEGIN_UPDATE);
                 EventBus.getDefault().post(mainMsgBean);
                 break;
             case R.id.setting:
@@ -283,7 +299,7 @@ public class SettingActivity1 extends AppCompatActivity {
 
                 break;
             case R.id.anti_pinch://防夹
-                boolean a = QtimesServiceManager.instance().getAntiPinchStatus();
+                boolean a = getIntent().getBooleanExtra("isOPenClamp",false);
                 if (normalDialog == null)
                     normalDialog = new NormalDialog(this, R.style.mDialog);
                 normalDialog.show();
@@ -297,11 +313,14 @@ public class SettingActivity1 extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         normalDialog.dismiss();
-//                        if (!QtimesServiceManager.instance().isServerActive()) {
-//                            QtimesServiceManager.instance().connect(SettingActivity1.this);
-//                        }
-//                        boolean b = QtimesServiceManager.instance().resetAntiPinch();
-                        SerialPortUtil.getInstance().sendDate(("+OPENFG" + "\r\n").getBytes());
+                        if (waitDialogTime == null)
+                            waitDialogTime = new WaitDialogTime(SettingActivity1.this, android.R.style.Theme_Translucent_NoTitleBar);
+                        waitDialogTime.show();
+                        if(!a){
+                            SerialPortUtil.getInstance().sendDate(("+OPENFG" + "\r\n").getBytes());
+                        }else{
+                            SerialPortUtil.getInstance().sendDate(("+CLOSEFG" + "\r\n").getBytes());
+                        }
                     }
                 });
                 break;

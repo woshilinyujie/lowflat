@@ -147,6 +147,12 @@ public class SettingActivity extends AppCompatActivity {
                     openDegreeRepairTv.setText(value);
                 getIntent().putExtra("openDegreeRepair",value);
                 break;
+            case 22:
+                Toast.makeText(SettingActivity.this,"设置防夹等级成功",Toast.LENGTH_SHORT).show();
+                if(!TextUtils.isEmpty(value))
+                    openDegreeRepairTv.setText(value);
+                getIntent().putExtra("level",value);
+                break;
 
         }
     }
@@ -157,7 +163,7 @@ public class SettingActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @OnClick({R.id.open_degree_repair,R.id.back, R.id.left_repair_degree, R.id.right_repair_degree, R.id.open_degree, R.id.open_speed,R.id.close_power, R.id.close_speed})
+    @OnClick({R.id.level_tv,R.id.open_degree_repair,R.id.back, R.id.left_repair_degree, R.id.right_repair_degree, R.id.open_degree, R.id.open_speed,R.id.close_power, R.id.close_speed})
     public void onViewClicked(View view) {
         if (setDialog == null) {
             setDialog = new SetDialog(SettingActivity.this, R.style.mDialog);
@@ -167,6 +173,9 @@ public class SettingActivity extends AppCompatActivity {
             case R.id.back:
                 setResult(300,getIntent());
                 finish();
+                break;
+            case R.id.level_tv:
+                setDialog.show(22);
                 break;
             case R.id.close_power:
                 setDialog.show(8);

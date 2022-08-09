@@ -31,6 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -59,6 +60,7 @@ import com.wl.wlflatproject.Bean.StateBean;
 import com.wl.wlflatproject.Bean.UpdataJsonBean;
 import com.wl.wlflatproject.Bean.UpdateAppBean;
 import com.wl.wlflatproject.Bean.WeatherBean;
+import com.wl.wlflatproject.MUtils.CMDUtils;
 import com.wl.wlflatproject.MUtils.CodeUtils;
 import com.wl.wlflatproject.MUtils.Constants;
 import com.wl.wlflatproject.MUtils.DateUtils;
@@ -199,11 +201,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private String openDoorWaitTime = "--";//开门等待时间
     private String openDoorSpeed = "--";//开门速度
     private String closeDoorSpeed = "--";//关门速度
+    private String level = "--";//设置防夹等级
     public static String videoWIfi;
     public static String videOldWIfi;
     private String leftDegreeRepair = "--";//右角度修复值
     private String rightDegreeRepair = "--";//左角度修复值
     private String closePower = "--";//关门力度
+    private boolean isOPenClamp = false;//是否打开防夹
     private boolean watherClick = false;
     static String lcddisplay = "/sys/gpio_test_attr/lcd_power";
     File file = new File(lcddisplay);
@@ -264,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     Log.e("发送摄像头id", "。。。。");
                     serialPort.sendDate("+PublishVideoSn：\r\n".getBytes());
                     serialPort.sendDate("+Publishwifissid：\r\n".getBytes());
+                    serialPort.sendDate("+GETVER\r\n".getBytes());
                     break;
                 case 7:
 //                    fHeight = funView.getMeasuredHeight();
@@ -283,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     sendEmptyMessageDelayed(14, 3600 * 1000);
                     break;
                 case 15:
-                    serialPort.flag=true;
+                    serialPort.flag = true;
                     serialPort.readCode(dataListener);
                     break;
             }
@@ -316,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private File downLoadFile;
     private String fileUrl;
     private IntentFilter intentFilter;
+    private float plankVersionCode;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -324,7 +330,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initData();
-        setMq();
         initSerialPort();
         initCalendar();
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -360,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
 
-            fHeight = DpUtils.dip2px(this, 500);
+        fHeight = DpUtils.dip2px(this, 500);
         WindowManager windowManager = getWindowManager();
         screenWidth = windowManager.getDefaultDisplay().getWidth();
         screenHight = windowManager.getDefaultDisplay().getHeight();
@@ -373,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if (dialogTime == null)
             dialogTime = new WaitDialogTime(this, android.R.style.Theme_Translucent_NoTitleBar);
         requestPermission();
-        id = CodeUtils.getMacAddr();
+//        id = CodeUtils.getMacAddr();
 //        id = DeviceUtils.getSerialNumber(this);
         Log.e("获得Mac地址", id + "");
         rbmq = new RbMqUtils();
@@ -413,7 +418,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         handler.sendEmptyMessage(4);
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
-        codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle);
     }
 
 
@@ -434,6 +438,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 intent.putExtra("rightDegreeRepair", rightDegreeRepair);
                 intent.putExtra("closePower", closePower);
                 intent.putExtra("openDegreeRepair", openDegreeRepair);
+                intent.putExtra("level", level);
+                intent.putExtra("isOPenClamp", isOPenClamp);
                 startActivity(intent);
                 break;
             case R.id.swtich:
@@ -623,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         serialPort = SerialPortUtil.getInstance();
         serialPort.setThread(threads);
         handler.sendEmptyMessageDelayed(5, 2000);
-        dataListener=new SerialPortUtil.DataListener() {
+        dataListener = new SerialPortUtil.DataListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
             @Override
             public void getData(String data) {//串口返回数据
@@ -730,6 +736,32 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                     break;
                                 case 10://开门角度修复值
                                     openDegreeRepair = split[1];
+                                    break;
+                                case 11://设置防夹等级
+                                    switch (split[1]){
+                                        case "1":
+                                            level="低";
+                                            break;
+                                        case "2":
+                                            level="中";
+                                            break;
+                                        case "3":
+                                            level="高";
+                                            break;
+                                    }
+                                    break;
+                                case 12://打开关闭防夹开关
+                                    if(split[1].equals("0")){
+                                        isOPenClamp=false;
+                                    }else{
+                                        isOPenClamp=true;
+                                    }
+                                    break;
+                                case 13://唯一id1
+                                    id=split[1];
+                                    codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle,id);
+                                    bean.setDevId(id);
+                                    setMq();
                                     break;
                             }
                         } else if (data.contains("AT+LEFTANGLEREPAIR=1")) { //左角度修复值
@@ -890,6 +922,29 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             } catch (Exception e) {
 
                             }
+                        } else if (data.contains("AT+VER=")) { //防夹版本号
+                            String[] split = data.split("V");
+                            plankVersionCode = Float.parseFloat(split[1]);
+                        } else if (data.contains("AT+OPENFG=1")) { //打开防夹
+                            isOPenClamp=true;
+                            if (setMsgBean == null)
+                                setMsgBean = new SetMsgBean();
+                            setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
+                            setMsgBean.setMsg("1");
+                        } else if (data.contains("AAT+CLOSEFG=1")) { //关闭防夹
+                            isOPenClamp=false;
+                            if (setMsgBean == null)
+                                setMsgBean = new SetMsgBean();
+                            setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
+                            setMsgBean.setMsg("0");
+                        } else if (data.contains("AT+LEVEL=")) { //设置防夹等级
+
+                            if (setMsgBean == null)
+                                setMsgBean = new SetMsgBean();
+                            setMsgBean.setFlag(22);
+                            if (!TextUtils.isEmpty(msg))
+                                level = msg;
+                            EventBus.getDefault().post(setMsgBean);
                         } else if (data.contains("AT+PEOPLECHECK=")) {
                             String[] split = data.split("=");
                             switch (split[1]) {
@@ -909,7 +964,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                     SPUtil.getInstance(MainActivity.this).setSettingParam("checkNum", checkNum);
                                     break;
                             }
-                        }else if (data.contains("AT+REQUESTACK=1")) {
+                        } else if (data.contains("AT+REQUESTACK=1")) {
                             unregisterReceiver(receiver);
                             handler.removeMessages(0);
                             threads.execute(new Runnable() {
@@ -917,16 +972,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                 public void run() {
                                     try {
                                         Thread.sleep(100);
-                                        if(yModem==null) {
+                                        if (yModem == null) {
                                             yModem = new YModem();
                                         }
-                                        yModem.send(downLoadFile,serialPort);
-                                        EventBus.getDefault().post(new SetMsgBean(8));
+                                        yModem.send(downLoadFile, serialPort);
+                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_SUCCESS));
                                     } catch (Exception e) {
-                                        EventBus.getDefault().post(new SetMsgBean(7));
+                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_ERRO));
                                         Log.e("固件升级抛出错误---", e.toString());
-                                    }finally {
-                                        Log.e("固件升---","结束");
+                                    } finally {
+                                        Log.e("固件升---", "结束");
                                         handler.sendEmptyMessage(15);
                                         handler.sendEmptyMessage(0);
                                         registerReceiver(receiver, intentFilter);
@@ -1031,11 +1086,24 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             case 12://关闭人流检测
                 serialPort.sendDate(("+ANGLEREPAIR:" + msg + "\r\n").getBytes());
                 break;
-            case 13://后板升级校验
-                requestFileUpdate(0);
+            case CMDUtils.BEGIN_UPDATE://后板升级校验
+                requestFileUpdate();
                 break;
-            case 14://确认升级
+            case CMDUtils.WAIT_UPDATE://确认升级
                 downloadFile(fileUrl);
+                break;
+            case 22://  设置防夹等级
+                switch (msg) {
+                    case "低":
+                        serialPort.sendDate(("+LEVEL=1" + "\r\n").getBytes());
+                        break;
+                    case "中":
+                        serialPort.sendDate(("+LEVEL=2" + "\r\n").getBytes());
+                        break;
+                    case "高":
+                        serialPort.sendDate(("+LEVEL=3" + "\r\n").getBytes());
+                        break;
+                }
                 break;
             case 21://设置门类型
                 if (msg.equals("1")) {//母门
@@ -1494,7 +1562,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bodyBean.setVendor_name("general");
         bodyBean.setPlatform("android");
 
-                bodyBean.setEndpoint_type("WL025S1-Sign");
+        bodyBean.setEndpoint_type("WL025S1-Sign");
 
         bodyBean.setCurrent_version(version + "");
 
@@ -1530,7 +1598,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 //                                });
 //                            }
 //                        } else {
-                            listener.success(updateAppBean);
+                        listener.success(updateAppBean);
 //                        }
                     }
                 } catch (Exception e) {
@@ -1548,10 +1616,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     /**
      * 固件升级
-     *
-     * @param version
      */
-    private void requestFileUpdate(int version) {
+    private void requestFileUpdate() {
         UpdataJsonBean updataJsonBean = new UpdataJsonBean();
         UpdataJsonBean.PUSBean pusBean = new UpdataJsonBean.PUSBean();
         UpdataJsonBean.PUSBean.BodyBean bodyBean = new UpdataJsonBean.PUSBean.BodyBean();
@@ -1581,16 +1647,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 Gson gson = new Gson();
                 try {
                     UpdateAppBean updateAppBean = gson.fromJson(s, UpdateAppBean.class);
-                    if (Integer.parseInt(updateAppBean.getPUS().getBody().getNew_version()) > version) {
-                        EventBus.getDefault().post(new SetMsgBean(6));
+                    if (Integer.parseInt(updateAppBean.getPUS().getBody().getNew_version()) > plankVersionCode) {
+                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.FIND_NEW_VERSION));
                         fileUrl = updateAppBean.getPUS().getBody().getUrl();
-                    }else{
-                        EventBus.getDefault().post(new SetMsgBean(5));
+                    } else {
+                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.CURRENT_NEW_VERSION));
                     }
                 } catch (Exception e) {
                     Log.e("升级接口报错", e.toString());
                 }
             }
+
             @Override
             public void onError(Response<String> response) {
             }
@@ -1619,7 +1686,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 //                    Intent intent = IntentUtil.getInstallAppIntent(MainActivity.this, filePath);
 //                    startActivity(intent);
 //                } else {
-                    boolean b = installApp(filePath);
+                boolean b = installApp(filePath);
 //                }
             }
 
@@ -1657,8 +1724,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 Log.e("固件下载", "下载成功：" + filePath);
                 if (downLoadFile.exists()) {
                     //暂停一下 别的 接收
-                    serialPort.flag=false;
-                    serialPort.sendDate(("+REQUESTACK" +"\r\n").getBytes());
+                    serialPort.flag = false;
+                    serialPort.sendDate(("+REQUESTACK" + "\r\n").getBytes());
                 }
             }
         });

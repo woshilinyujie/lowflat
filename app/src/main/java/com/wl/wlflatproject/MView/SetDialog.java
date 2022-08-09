@@ -20,6 +20,7 @@ public class SetDialog extends Dialog {
     private String s2[]=new String[]{"72","77","82","87"};//开门角度
     private String s3[]=new String[]{"2","4","6","8","10","12","14","16","18","20","22","24","26","28","30"};//等待时间
     private String s4[]=new String[]{"减速一档","减速二档","减速三档","减速关闭"};//关门力度
+    private String s5[]=new String[]{"低","中","高"};//设置防夹检测范围
     private TextView name;
     private View back;
     private Button complete;
@@ -91,6 +92,10 @@ public class SetDialog extends Dialog {
             case 12://开门角度修复值
                 start.refreshByNewDisplayedValues(s);
                 name.setText("开门角度修复值");
+                break;
+            case 22://防夹等级
+                start.refreshByNewDisplayedValues(s5);
+                name.setText("设置防夹检测范围");
                 break;
         }
         show();
