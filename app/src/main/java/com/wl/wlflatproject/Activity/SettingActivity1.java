@@ -152,8 +152,10 @@ public class SettingActivity1 extends AppCompatActivity {
                 Toast.makeText(SettingActivity1.this, "设置成功", Toast.LENGTH_SHORT).show();
                 if(setMsgBean.getMsg().equals("0")){
                     antiPinchTv.setText("关");
+                    getIntent().putExtra("isOPenClamp",false);
                 }else{
                     antiPinchTv.setText("开");
+                    getIntent().putExtra("isOPenClamp",true);
                 }
                 break;
         }

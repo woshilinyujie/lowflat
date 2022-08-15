@@ -55,6 +55,8 @@ public class SettingActivity extends AppCompatActivity {
     TextView closePowerTv;
     @BindView(R.id.open_degree_repair_tv)
     TextView openDegreeRepairTv;
+    @BindView(R.id.level_tv)
+    TextView level_tv;
     private String value;
     private SetDialog setDialog;
     private SetDialog.ResultListener listener;
@@ -79,6 +81,7 @@ public class SettingActivity extends AppCompatActivity {
         closeSpeedTv.setText(intent.getStringExtra("closeDoorSpeed"));
         closePowerTv.setText(intent.getStringExtra("closePower"));
         openDegreeRepairTv.setText(intent.getStringExtra("openDegreeRepair"));
+        level_tv.setText(intent.getStringExtra("level"));
         listener = new SetDialog.ResultListener() {
             @Override
             public void onResult(String value,int flag) {
@@ -150,7 +153,7 @@ public class SettingActivity extends AppCompatActivity {
             case 22:
                 Toast.makeText(SettingActivity.this,"设置防夹等级成功",Toast.LENGTH_SHORT).show();
                 if(!TextUtils.isEmpty(value))
-                    openDegreeRepairTv.setText(value);
+                    level_tv.setText(value);
                 getIntent().putExtra("level",value);
                 break;
 
@@ -163,7 +166,7 @@ public class SettingActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @OnClick({R.id.level_tv,R.id.open_degree_repair,R.id.back, R.id.left_repair_degree, R.id.right_repair_degree, R.id.open_degree, R.id.open_speed,R.id.close_power, R.id.close_speed})
+    @OnClick({R.id.level,R.id.open_degree_repair,R.id.back, R.id.left_repair_degree, R.id.right_repair_degree, R.id.open_degree, R.id.open_speed,R.id.close_power, R.id.close_speed})
     public void onViewClicked(View view) {
         if (setDialog == null) {
             setDialog = new SetDialog(SettingActivity.this, R.style.mDialog);
@@ -174,7 +177,7 @@ public class SettingActivity extends AppCompatActivity {
                 setResult(300,getIntent());
                 finish();
                 break;
-            case R.id.level_tv:
+            case R.id.level:
                 setDialog.show(22);
                 break;
             case R.id.close_power:

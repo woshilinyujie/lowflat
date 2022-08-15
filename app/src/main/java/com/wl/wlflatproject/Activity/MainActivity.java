@@ -931,12 +931,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                 setMsgBean = new SetMsgBean();
                             setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
                             setMsgBean.setMsg("1");
-                        } else if (data.contains("AAT+CLOSEFG=1")) { //关闭防夹
+                            EventBus.getDefault().post(setMsgBean);
+                        } else if (data.contains("AT+CLOSEFG=1")) { //关闭防夹
                             isOPenClamp=false;
                             if (setMsgBean == null)
                                 setMsgBean = new SetMsgBean();
                             setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
                             setMsgBean.setMsg("0");
+                            EventBus.getDefault().post(setMsgBean);
                         } else if (data.contains("AT+LEVEL=")) { //设置防夹等级
 
                             if (setMsgBean == null)
