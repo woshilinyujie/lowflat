@@ -923,7 +923,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                             }
                         } else if (data.contains("AT+VER=")) { //防夹版本号
-                            String[] split = data.split("V");
+                            String[] split = data.split("=V");
                             plankVersionCode = Float.parseFloat(split[1]);
                         } else if (data.contains("AT+OPENFG=1")) { //打开防夹
                             isOPenClamp=true;

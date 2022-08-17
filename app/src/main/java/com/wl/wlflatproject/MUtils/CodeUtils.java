@@ -105,15 +105,15 @@ public class CodeUtils {
     }
 
 
-    public static String getMacAddr() {
-        try {
-            return loadFileAsString("/sys/class/net/wlan0/address")
-                    .toUpperCase().substring(0, 17);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
+//    public static String getMacAddr() {
+//        try {
+//            return loadFileAsString("/sys/class/net/wlan0/address")
+//                    .toUpperCase().substring(0, 17);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "";
+//        }
+//    }
     private static String loadFileAsString(String filePath)
             throws java.io.IOException {
         StringBuffer fileData = new StringBuffer(1000);
