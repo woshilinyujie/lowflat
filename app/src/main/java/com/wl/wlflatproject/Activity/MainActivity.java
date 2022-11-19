@@ -1085,7 +1085,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             case 11://关闭人流检测
                 open.setVisibility(View.GONE);
                 break;
-            case 12://关闭人流检测
+            case 12://开门角度修复值
                 serialPort.sendDate(("+ANGLEREPAIR:" + msg + "\r\n").getBytes());
                 break;
             case CMDUtils.BEGIN_UPDATE://后板升级校验
