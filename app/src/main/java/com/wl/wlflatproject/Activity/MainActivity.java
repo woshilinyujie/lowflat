@@ -13,7 +13,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -21,7 +20,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -37,15 +35,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.amap.api.location.AMapLocation;
 import com.google.gson.Gson;
-import com.lib.EFUN_ERROR;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
-import com.manager.db.DevDataCenter;
-import com.manager.db.XMDevInfo;
-import com.manager.device.config.PwdErrorManager;
 import com.qtimes.service.wonly.client.QtimesServiceManager;
 import com.wl.wlflatproject.Bean.BaseBean;
 import com.wl.wlflatproject.Bean.CalendarParam;
@@ -61,13 +55,9 @@ import com.wl.wlflatproject.Bean.UpdataJsonBean;
 import com.wl.wlflatproject.Bean.UpdateAppBean;
 import com.wl.wlflatproject.Bean.WeatherBean;
 import com.wl.wlflatproject.MUtils.CMDUtils;
-import com.wl.wlflatproject.MUtils.CodeUtils;
-import com.wl.wlflatproject.MUtils.Constants;
 import com.wl.wlflatproject.MUtils.DateUtils;
-import com.wl.wlflatproject.MUtils.DeviceUtils;
 import com.wl.wlflatproject.MUtils.DpUtils;
 import com.wl.wlflatproject.MUtils.GsonUtils;
-import com.wl.wlflatproject.MUtils.IntentUtil;
 import com.wl.wlflatproject.MUtils.LocationUtils;
 import com.wl.wlflatproject.MUtils.LunarUtils;
 import com.wl.wlflatproject.MUtils.RbMqUtils;
@@ -77,12 +67,10 @@ import com.wl.wlflatproject.MUtils.VersionUtils;
 import com.wl.wlflatproject.MUtils.YmodleUtils;
 import com.wl.wlflatproject.MView.CodeDialog;
 import com.wl.wlflatproject.MView.NormalDialog;
+import com.wl.wlflatproject.MView.WJAVideoView;
 import com.wl.wlflatproject.MView.WaitDialogTime;
-import com.wl.wlflatproject.Presenter.DevMonitorContract;
-import com.wl.wlflatproject.Presenter.DevMonitorPresenter;
+import com.wl.wlflatproject.Presenter.WJAPlayPresenter;
 import com.wl.wlflatproject.R;
-import com.xm.linke.face.FaceFeature;
-import com.xm.ui.dialog.XMPromptDlg;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -106,7 +94,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ru.sir.ymodem.YModem;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, DevMonitorContract.IDevMonitorView {
+public class MainActivity extends AppCompatActivity{
     public static int checkNum = 0;//人流检测人数
     public static int checkNumRect = 0;//重置人流检测
     public boolean isDbugOpen = false;
@@ -124,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     TextView num;
     @BindView(R.id.rl)
     RelativeLayout rl;
+    @BindView(R.id.video_play_view)
+    WJAVideoView videoPlayView;
     @BindView(R.id.lock_bt)
     LinearLayout lockBt;
     @BindView(R.id.video_iv)
@@ -238,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 case 1:
                     if (isFull)
                         setScreen();
-                    devMonitorPresenter.stopMonitor();
+                    wjaPlayPresenter.stopMonitor();
                     Log.e("有人离开停止视频", "..");
                     break;
                 case 2:
@@ -307,10 +297,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private DateUtils dateUtils;
     private String msg;
     private int screenWidth;
-    private CheckNumBean checkNumBean;
-    private QtimesServiceManager.QtimesDoorServiceListener checkListener;
     private int screenHight;
-    private DevMonitorPresenter devMonitorPresenter;
+    private WJAPlayPresenter wjaPlayPresenter;
     private String mTodayCode = "";
     private String mSecondCode = "";
     private String mThirdCode = "";
@@ -340,8 +328,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     private void initData() {
         threads = Executors.newFixedThreadPool(3);
-        devMonitorPresenter = new DevMonitorPresenter(this, bg, funView, time);
-        devMonitorPresenter.setChannelId(0);
+        wjaPlayPresenter = new WJAPlayPresenter();
+        wjaPlayPresenter.initCamera(videoPlayView,funView,id,vide,getApplication(),this);
         normalDialog = new NormalDialog(this, R.style.mDialog);
         int select = SPUtil.getInstance(this).getSettingParam("doorSelect", 0);
         if (select == 1) {//母门
@@ -1069,10 +1057,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
                 break;
             case 9://开启人流检测
-//                if (!QtimesServiceManager.instance().isServerActive()) {
-//                    QtimesServiceManager.instance().connect(this);
-//                }
-//                QtimesServiceManager.instance().setListener(checkListener);
                 open.setVisibility(View.VISIBLE);
                 num.setText("当前室内人数：" + checkNum + "人");
                 break;
@@ -1211,20 +1195,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         super.onDestroy();
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
 
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
-    }
 
 
     public class NetStatusReceiver extends BroadcastReceiver {
@@ -1820,36 +1791,5 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
 
-    @Override
-    public void onPlayState(int state, int errorId) {
-        if (errorId == EFUN_ERROR.EE_DVR_PASSWORD_NOT_VALID) {
-            XMDevInfo devInfo = DevDataCenter.getInstance().getDevInfo(devMonitorPresenter.getDevId());
-            XMPromptDlg.onShowPasswordErrorDialog(this, devInfo.getSdbDevInfo(), 0, new PwdErrorManager.OnRepeatSendMsgListener() {
-                @Override
-                public void onSendMsg(int msgId) {
-                    devMonitorPresenter.startMonitor();
-                }
-            });
-        } else if (errorId < 0) {
-            Toast.makeText(MainActivity.this, "打开视频失败", Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-
-    @Override
-    public void onUpdateFaceFrameView(FaceFeature[] faceFeatures, int width, int height) {
-
-    }
-
-    @Override
-    public Context getContext() {
-        return this;
-    }
-
-    @Override
-    public MainActivity getActivity() {
-        return this;
-    }
 
 }

@@ -103,5 +103,7 @@ dependencies {
     implementation(name: 'service_wonly', ext: 'aar')
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
     compileOnly 'com.google.zxing:core:3.3.3'
-    implementation 'com.xiongmai:libxmfunsdk:1.0.5'
+    implementation(name: 'AVLIB-release_1.5.5', ext: 'aar')
+    implementation(name: 'SDLIB-release', ext: 'aar')
+    implementation 'com.alibaba:fastjson:1.1.67.android'
 }
