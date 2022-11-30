@@ -10,31 +10,70 @@ package com.wl.wlflatproject.Bean;
  */
 public class WJAParamBean {
 
-    private String uid;
-    private String userToken;
-    private String userTopic;
+    private int code;
+    private String msg;
+    private String note;
+    private DataDTO data;
 
-    public String getUid() {
-        return uid;
+    public int getCode() {
+        return code;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public String getUserToken() {
-        return userToken;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
-    public String getUserTopic() {
-        return userTopic;
+    public String getNote() {
+        return note;
     }
 
-    public void setUserTopic(String userTopic) {
-        this.userTopic = userTopic;
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public DataDTO getData() {
+        return data;
+    }
+
+    public void setData(DataDTO data) {
+        this.data = data;
+    }
+
+    public static class DataDTO {
+        private String uid;
+        private String userToken;
+        private String userTopic;
+
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
+        }
+
+        public String getUserToken() {
+            return userToken;
+        }
+
+        public void setUserToken(String userToken) {
+            this.userToken = userToken;
+        }
+
+        public String getUserTopic() {
+            return userTopic;
+        }
+
+        public void setUserTopic(String userTopic) {
+            this.userTopic = userTopic;
+        }
     }
 }

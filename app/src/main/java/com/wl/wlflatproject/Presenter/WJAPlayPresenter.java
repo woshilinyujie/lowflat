@@ -4,11 +4,15 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -18,11 +22,14 @@ import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.wl.wlflatproject.Activity.MainActivity;
 import com.wl.wlflatproject.Bean.WJAParamBean;
 import com.wl.wlflatproject.Bean.WJATokenBean;
 import com.wl.wlflatproject.MUtils.StringCallBack;
 import com.wl.wlflatproject.MUtils.Utils;
 import com.wl.wlflatproject.MView.WJAVideoView;
+import com.wl.wlflatproject.MView.WaitDialogTime1;
+import com.wl.wlflatproject.R;
 import com.worthcloud.avlib.basemedia.MediaControl;
 import com.worthcloud.avlib.basemedia.NetApiManager;
 import com.worthcloud.avlib.bean.AgreementType;
@@ -47,18 +54,19 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private String mVideoUid;
     private Application application;
     private boolean isLinking = false;
-    private Context context;
+    private MainActivity context;
     private boolean isGetToken = false;
-   Handler handler = new Handler() {
-       @Override
-       public void handleMessage(Message msg) {
-           keepDeviceLive();
-       }
-   };
-
-
-
-
+    public boolean isPlaying = false;
+    private ImageView bg;
+    private RelativeLayout mFunVideoView;
+    private TextView time;
+    private WaitDialogTime1 mWaitDlg1;
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            keepDeviceLive();
+        }
+    };
 
 
     public void initCamera(
@@ -67,8 +75,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             String mDeviceUid,
             String mVideoUid,
             Application application,
-            Context context
+            MainActivity context,
+            ImageView bg, RelativeLayout mFunVideoView, TextView time
     ) {
+        this.bg=bg;
+        this.mFunVideoView=mFunVideoView;
+        this.time=time;
         this.context = context;
         this.mDeviceUid = mDeviceUid;
         this.mVideoUid = mVideoUid;
@@ -87,6 +99,10 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         videoPlayView.setOnVideoPlayViewListener(this);
         videoPlayView.setOnVideoPlayViewClick(this);
         initAudio(videoPlayView.getContext());
+    }
+
+    public String getVideoId() {
+        return mVideoUid;
     }
 
 
@@ -111,8 +127,10 @@ public class WJAPlayPresenter implements OnVideoViewListener,
      * 获取万佳安TOKEN
      */
     public void queryWAJToken(boolean refreshToken) {
-        if (isGetToken) return;
-        isGetToken = true;
+        if (mWaitDlg1 == null)
+            mWaitDlg1 = new WaitDialogTime1(context, android.R.style.Theme_Translucent_NoTitleBar);
+        mWaitDlg1.show();
+        mWaitDlg1.setWaitText("连接设备中");
         JSONObject data = new JSONObject();
         try {
             data.put("devId", mDeviceUid);
@@ -122,26 +140,34 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String path = "api/aigang/wanjiaan/getCameraPullFlowToken";
+//        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
+        String path = "http://ums-test.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
                 String s = response.body();
                 Gson gson = new Gson();
                 WJATokenBean wjaTokenBean = gson.fromJson(s, WJATokenBean.class);
-                WJANetCtrl.getInstance().setToken(wjaTokenBean.getToken());
-                if (wjaTokenBean.getOnlineStatus() == 1) {
-                    startLink(true);
-                } else {
-                    wakeUpCamera();
+                if(wjaTokenBean.getData()==null||wjaTokenBean.getData().getToken()==null){
+                    if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                        mWaitDlg1.dismiss();
+                    Toast.makeText(context, wjaTokenBean.getMsg(), Toast.LENGTH_SHORT).show();
+                }else{
+                    WJANetCtrl.getInstance().setToken(wjaTokenBean.getData().getToken());
+                    if (wjaTokenBean.getData().getOnlineStatus() == 1) {
+                        startLink(true);
+                    } else {
+                        wakeUpCamera();
+                    }
                 }
-                isGetToken = false;
             }
 
             @Override
             public void onError(Response<String> response) {
-                Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
-                isGetToken = false;
+                Toast.makeText(context, "获取wja token接口失败", Toast.LENGTH_SHORT).show();
+                if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                    mWaitDlg1.dismiss();
+                Toast.makeText(context, "摄像头唤醒失败", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -157,14 +183,15 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-        String path = "api/aigang/wanjiaan/wakeUpCameraParameters";
+//        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/wakeUpCameraParameters";
+        String path = "http://ums-test.wonlycloud.com:10301//api/aigang/wanjiaan/wakeUpCameraParameters";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
                 String s = response.body();
                 Gson gson = new Gson();
                 WJAParamBean wjaParamBean = gson.fromJson(s, WJAParamBean.class);
-                NetApiManager.getInstance().initNetApiManager(wjaParamBean.getUserToken(), wjaParamBean.getUserTopic());
+                NetApiManager.getInstance().initNetApiManager(wjaParamBean.getData().getUserToken(), wjaParamBean.getData().getUserTopic());
                 NetApiManager.getInstance().setOnMqttArrivedListener(new OnMqttArrivedListener() {
                     @Override
                     public void onSystemNotify(String s) {
@@ -175,7 +202,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     public void onOnlineStatusNotify(String deviceId, String status) {
                         if ("1".equals(status) && deviceId.equals(mVideoUid)) {
                             // 开始维活
-                            handler.sendEmptyMessageDelayed(0,5000);
+                            handler.sendEmptyMessageDelayed(0, 5000);
                             startLink(true);
                         }
                     }
@@ -204,6 +231,8 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
                     @Override
                     public void fail(long l, String s) {
+                        if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                            mWaitDlg1.dismiss();
                         Toast.makeText(context, "摄像头唤醒失败", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -211,7 +240,9 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
             @Override
             public void onError(Response<String> response) {
-
+                Toast.makeText(context, "唤醒接口调用失败", Toast.LENGTH_SHORT).show();
+                if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                    mWaitDlg1.dismiss();
             }
         });
     }
@@ -234,7 +265,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         });
     }
 
-    private int linkCount = 0;
+    public int linkCount = 0;
     private boolean isLinkSuccess = false;
     private LinkInfo mLinkInfo;
 
@@ -281,6 +312,8 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                             Toast.makeText(context, errorStr, Toast.LENGTH_SHORT).show();
                             isLinkSuccess = false;
                             //彻底失败
+                            if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                                mWaitDlg1.dismiss();
                         }
                     }
                 });
@@ -296,6 +329,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             }
         }
     }
+
     /**
      * 停止预览
      */
@@ -304,13 +338,35 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             videoPlayView.playVideoStop();
         }
     }
-    @Override
-    public void onLoading() {
 
+
+    /**
+     * 注销实时预览
+     */
+    public void destroyMonitor() {
+        isPlaying = false;
+        if (null != mFunVideoView) {
+            mFunVideoView.setVisibility(View.INVISIBLE);
+            bg.setBackgroundResource(R.drawable.bg1);
+            time.setVisibility(View.VISIBLE);
+        }
+        if(!TextUtils.isEmpty(mVideoUid))
+        MediaControl.getInstance().destroyLink(mVideoUid);
     }
 
     @Override
     public void onHideLoading() {
+        if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+            mWaitDlg1.dismiss();
+        mFunVideoView.setVisibility(View.VISIBLE);
+        time.setVisibility(View.GONE);
+        if (fullScreen)
+           context.setFullScreen();
+        isPlaying = true;
+    }
+
+    @Override
+    public void onLoading() {
 
     }
 
@@ -333,6 +389,8 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void onCustomTouchEvent(MotionEvent motionEvent) {
 
     }
-
-
+    private boolean fullScreen = false;
+    public void setScreen(Boolean b) {
+        this.fullScreen = b;
+    }
 }

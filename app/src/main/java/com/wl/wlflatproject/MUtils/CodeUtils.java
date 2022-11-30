@@ -57,11 +57,11 @@ public class CodeUtils {
                 offsetY = (h - scaleHeight) / 2;
             }
             Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-            hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+            hints.put(com.google.zxing.EncodeHintType.CHARACTER_SET, "utf-8");
             //容错级别
-            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            hints.put(com.google.zxing.EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
             //设置空白边距的宽度
-            hints.put(EncodeHintType.MARGIN, 0);
+            hints.put(com.google.zxing.EncodeHintType.MARGIN, 0);
             BitMatrix bitMatrix = new QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, w, h, hints);
             int[] pixels = new int[w * h];
             for (int y = 0; y < h; y++) {
@@ -105,15 +105,15 @@ public class CodeUtils {
     }
 
 
-//    public static String getMacAddr() {
-//        try {
-//            return loadFileAsString("/sys/class/net/wlan0/address")
-//                    .toUpperCase().substring(0, 17);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "";
-//        }
-//    }
+    public static String getMacAddr() {
+        try {
+            return loadFileAsString("/sys/class/net/wlan0/address")
+                    .toUpperCase().substring(0, 17);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
     private static String loadFileAsString(String filePath)
             throws java.io.IOException {
         StringBuffer fileData = new StringBuffer(1000);

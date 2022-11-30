@@ -12,26 +12,61 @@ import java.io.Serializable;
  */
 public class WJATokenBean implements Serializable {
 
-    private String token;
+    private int code;
+    private String msg;
+    private String note;
+    private DataDTO data;
 
-    /**
-     * 0:离线 1: 在线  2：休眠
-     */
-    private int onlineStatus = 0;
-
-    public String getToken() {
-        return token;
+    public int getCode() {
+        return code;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public int getOnlineStatus() {
-        return onlineStatus;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setOnlineStatus(int onlineStatus) {
-        this.onlineStatus = onlineStatus;
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public DataDTO getData() {
+        return data;
+    }
+
+    public void setData(DataDTO data) {
+        this.data = data;
+    }
+
+    public static class DataDTO {
+        private String token;
+        private int onlineStatus;
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public int getOnlineStatus() {
+            return onlineStatus;
+        }
+
+        public void setOnlineStatus(int onlineStatus) {
+            this.onlineStatus = onlineStatus;
+        }
     }
 }

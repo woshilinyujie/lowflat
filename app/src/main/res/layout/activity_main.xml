@@ -52,9 +52,9 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/dp_100"
             android:layout_marginRight="@dimen/dp_100"
-            android:visibility="invisible" >
+        >
 
-            <WJAVideoView
+            <com.wl.wlflatproject.MView.WJAVideoView
                 android:id="@+id/video_play_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

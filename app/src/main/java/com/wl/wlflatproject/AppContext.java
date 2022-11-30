@@ -4,11 +4,8 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.util.Log;
 
-import com.lib.EFUN_ATTR;
-import com.lib.FunSDK;
-import com.lib.SDKCONST;
-import com.lib.sdk.bean.StringUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
 import com.lzy.okgo.cache.CacheMode;
@@ -18,12 +15,10 @@ import com.lzy.okgo.https.HttpsUtils;
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
-import com.manager.XMFunSDKManager;
-import com.utils.FileUtils;
-import com.utils.XUtils;
 import com.wl.wlflatproject.Activity.MainActivity;
 import com.wl.wlflatproject.MUtils.SafeHostnameVerifier;
 import com.wl.wlflatproject.MUtils.SafeTrustManager;
+import com.worthcloud.avlib.basemedia.MediaControl;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -60,12 +55,9 @@ public class AppContext extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        XMFunSDKManager.getInstance().initXMCloudPlatform(this).initLog();
-        initPath();
         initOKGO();
         crashHandler = new CrashHandler(this);
         Thread.setDefaultUncaughtExceptionHandler(crashHandler);
-        FunSDK.SetFunIntAttr(EFUN_ATTR.SUP_RPS_VIDEO_DEFAULT, SDKCONST.Switch.Open);
     }
 
     /**
@@ -136,8 +128,7 @@ public class AppContext extends Application {
                 .setRetryCount(3)
                 .addCommonHeaders(headers)
                 .addCommonParams(params);
-        FunSDK.LogInit(0,"",0,"",1);
-
+        initAVLib(this);
     }
 
     class CrashHandler implements Thread.UncaughtExceptionHandler {
@@ -161,101 +152,12 @@ public class AppContext extends Application {
         }
     }
 
-    private void initPath() {
-        DEFAULT_PATH = XUtils.getMediaPath(this) + File.separator + "xmfunsdkdemo" + File.separator;
-        PATH_PHOTO_TEMP = DEFAULT_PATH + ".temp_images";
-
-        // 下载设备缩略图此路径可用
-        PATH_DEVICE_TEMP = XUtils.getAndroidPath(this) + File.separator + ".temp_capture";
-
-        PATH_PHOTO = getPathForPhoto();
-        PATH_VIDEO = getPathForVideo();
-
-        File pFile = new File(DEFAULT_PATH);
-        if (pFile != null && !pFile.exists()) {
-            makeRootDirectory(pFile.getPath());
-        }
-
-        pFile = new File(PATH_PHOTO_TEMP);
-        if (pFile != null && !pFile.exists()) {
-            makeRootDirectory(pFile.getPath());
-        }
-
-        pFile = new File(PATH_DEVICE_TEMP);
-        if (pFile != null && !pFile.exists()) {
-            makeRootDirectory(pFile.getPath());
-        }
-
-        pFile = new File(PATH_PHOTO);
-        if (pFile != null && !pFile.exists()) {
-            makeRootDirectory(pFile.getPath());
-        }
-
-        pFile = new File(PATH_VIDEO);
-        if (pFile != null && !pFile.exists()) {
-            makeRootDirectory(pFile.getPath());
-        }
-    }
-    public static boolean makeRootDirectory(String filePath) {
-        File file = null;
-        String newPath = null;
-        String[] path = filePath.split("/");
-        for (int i = 0; i < path.length; i++) {
-            if (newPath == null) {
-                newPath = path[i];
-            } else {
-                newPath = newPath + "/" + path[i];
-            }
-            if (StringUtils.isStringNULL(newPath)) {
-                continue;
-            }
-            file = new File(newPath);
-            if (!file.exists()) {
-                return file.mkdir();
-            }
-        }
-        return true;
-    }
-    private String getPathForPhoto() {
-        SharedPreferences bell = getSharedPreferences("my_pref", 0);
-        String path = bell.getString("img_save_path", null);
-        if (path == null) {
-            String galleryPath = Environment.getExternalStorageDirectory()
-                    + File.separator + Environment.DIRECTORY_DCIM
-                    + File.separator + "Camera" + File.separator;
-            if (!FileUtils.isFileAvailable(galleryPath)) {
-                galleryPath = Environment.getExternalStorageDirectory()
-                        + File.separator + Environment.DIRECTORY_DCIM
-                        + File.separator;
-            }
-            if (!FileUtils.isFileAvailable(galleryPath)) {
-                path = DEFAULT_PATH + "snapshot";
-            } else {
-                path = galleryPath;
-            }
-        }
-        return path;
-    }
-
-    private String getPathForVideo() {
-        SharedPreferences bell = getSharedPreferences("my_pref", 0);
-        String path = bell.getString("video_save_path", null);
-        if (path == null) {
-            String galleryPath = Environment.getExternalStorageDirectory()
-                    + File.separator + Environment.DIRECTORY_DCIM
-                    + File.separator + "Camera" + File.separator;
-            if (!FileUtils.isFileAvailable(galleryPath)) {
-                galleryPath = Environment.getExternalStorageDirectory()
-                        + File.separator + Environment.DIRECTORY_DCIM
-                        + File.separator;
-            }
-            if (!FileUtils.isFileAvailable(galleryPath)) {
-                path = DEFAULT_PATH + "videorecord";
-            } else {
-                path = galleryPath;
-            }
-        }
-        return path;
+    private void initAVLib(Application application) {
+        //设置显示
+//            WJANetCtrl.getInstance().getToken()
+            MediaControl.getInstance().setIsShowLog(true);
+            MediaControl.getInstance().initialize(application);
+            Log.d("hsl666", "initAVLib: ---->万佳安初始化");
     }
 
 }

@@ -55,7 +55,9 @@ import com.wl.wlflatproject.Bean.UpdataJsonBean;
 import com.wl.wlflatproject.Bean.UpdateAppBean;
 import com.wl.wlflatproject.Bean.WeatherBean;
 import com.wl.wlflatproject.MUtils.CMDUtils;
+import com.wl.wlflatproject.MUtils.CodeUtils;
 import com.wl.wlflatproject.MUtils.DateUtils;
+import com.wl.wlflatproject.MUtils.DeviceUtils;
 import com.wl.wlflatproject.MUtils.DpUtils;
 import com.wl.wlflatproject.MUtils.GsonUtils;
 import com.wl.wlflatproject.MUtils.LocationUtils;
@@ -228,7 +230,7 @@ public class MainActivity extends AppCompatActivity{
                 case 1:
                     if (isFull)
                         setScreen();
-                    wjaPlayPresenter.stopMonitor();
+                    wjaPlayPresenter.destroyMonitor();
                     Log.e("有人离开停止视频", "..");
                     break;
                 case 2:
@@ -329,7 +331,6 @@ public class MainActivity extends AppCompatActivity{
     private void initData() {
         threads = Executors.newFixedThreadPool(3);
         wjaPlayPresenter = new WJAPlayPresenter();
-        wjaPlayPresenter.initCamera(videoPlayView,funView,id,vide,getApplication(),this);
         normalDialog = new NormalDialog(this, R.style.mDialog);
         int select = SPUtil.getInstance(this).getSettingParam("doorSelect", 0);
         if (select == 1) {//母门
@@ -367,6 +368,7 @@ public class MainActivity extends AppCompatActivity{
             dialogTime = new WaitDialogTime(this, android.R.style.Theme_Translucent_NoTitleBar);
         requestPermission();
 //        id = CodeUtils.getMacAddr();
+        //低配屏id通过 板子返回   暂时使用这个测试
 //        id = DeviceUtils.getSerialNumber(this);
         Log.e("获得Mac地址", id + "");
         rbmq = new RbMqUtils();
@@ -406,6 +408,9 @@ public class MainActivity extends AppCompatActivity{
         handler.sendEmptyMessage(4);
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
+
+        wjaPlayPresenter.initCamera(videoPlayView,funView,"80A036D8D214","3305000000033391",
+                getApplication(),MainActivity.this,bg,funView,time);
     }
 
 
@@ -466,19 +471,21 @@ public class MainActivity extends AppCompatActivity{
                 handler.sendEmptyMessageDelayed(13, 500);
                 break;
             case R.id.video_iv:
-                if (!(devMonitorPresenter.getPlayState() == 0)) {
+                if (!wjaPlayPresenter.isPlaying) {
+                    //打开视频
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 60000);
-                    if (devMonitorPresenter.getVideoUuid() == null) {
+                    if (wjaPlayPresenter.getVideoId() == null) {
                         Toast.makeText(MainActivity.this, "未检测到摄像头（如果有摄像头请尝试通过王力智能客户端配置WIFI）", Toast.LENGTH_SHORT).show();
                         handler.sendEmptyMessageDelayed(6, 0);
                     } else {
-                        devMonitorPresenter.setScreen(true);
-                        devMonitorPresenter.startMonitor();
+                        wjaPlayPresenter.setScreen(true);
+                        wjaPlayPresenter.linkCount=0;
+                        wjaPlayPresenter.queryWAJToken(false);
                     }
                     handler.sendEmptyMessageDelayed(13, 500);
                 } else {
-                    devMonitorPresenter.stopMonitor();
+                    wjaPlayPresenter.destroyMonitor();
                 }
 
                 break;
@@ -563,12 +570,12 @@ public class MainActivity extends AppCompatActivity{
                                 writeFile(file, 2 + "");//打开屏幕
                                 handler.removeMessages(3);
                                 handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
-                                if (devMonitorPresenter.getVideoUuid() == null) {
+                                if (wjaPlayPresenter.getVideoId() == null) {
                                     Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    if (!(devMonitorPresenter.getPlayState() != 0)) {
-                                        devMonitorPresenter.setScreen(true);
-                                        devMonitorPresenter.startMonitor();
+                                    if (!wjaPlayPresenter.isPlaying) {
+                                        wjaPlayPresenter.setScreen(true);
+                                        wjaPlayPresenter.queryWAJToken(false);
                                     }
                                 }
                             }
@@ -830,12 +837,12 @@ public class MainActivity extends AppCompatActivity{
                             writeFile(file, 2 + "");//打开屏幕
                             handler.removeMessages(3);
                             handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                            if (devMonitorPresenter.getVideoUuid() == null) {
+                            if (wjaPlayPresenter.getVideoId()==null) {
                                 Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                             } else {
-                                if (!(devMonitorPresenter.getPlayState() != 0)) {
-                                    devMonitorPresenter.setScreen(true);
-                                    devMonitorPresenter.startMonitor();
+                                if (!wjaPlayPresenter.isPlaying) {
+                                    wjaPlayPresenter.setScreen(true);
+                                    wjaPlayPresenter.queryWAJToken(false);
                                 }
                             }
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
@@ -860,12 +867,12 @@ public class MainActivity extends AppCompatActivity{
                                         writeFile(file, 2 + "");//打开屏幕
                                         handler.removeMessages(3);
                                         handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                                        if (devMonitorPresenter.getVideoUuid() == null) {
+                                        if (wjaPlayPresenter.getVideoId() == null) {
                                             Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                                         } else {
-                                            if (!(devMonitorPresenter.getPlayState() == 0)) {
-                                                devMonitorPresenter.setScreen(true);
-                                                devMonitorPresenter.startMonitor();
+                                            if (!wjaPlayPresenter.isPlaying) {
+                                                wjaPlayPresenter.setScreen(true);
+                                                wjaPlayPresenter.queryWAJToken(false);
                                             }
                                         }
                                     }
@@ -893,8 +900,7 @@ public class MainActivity extends AppCompatActivity{
                             try {
                                 String[] split = data.split("=");
                                 if (split.length > 1) {
-                                    devMonitorPresenter.setVideoUuid(split[1]);
-                                    devMonitorPresenter.initMonitor(funView);
+                                    wjaPlayPresenter.initCamera(videoPlayView,funView,id,split[1],getApplication(),MainActivity.this,bg,funView,time);
                                 }
                             } catch (Exception e) {
 
@@ -1185,7 +1191,7 @@ public class MainActivity extends AppCompatActivity{
         handler.removeMessages(4);
         serialPort.close();
         serialPort.flag = false;
-        devMonitorPresenter.stopMonitor();
+        wjaPlayPresenter.destroyMonitor();
         mLocationUtils.destroyLocationClient();
         unregisterReceiver(receiver);
 //        if(mTimeReceiver!=null)
