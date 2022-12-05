@@ -339,7 +339,9 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         }
     }
 
-
+    public void setDevid(String id){
+        mDeviceUid=id;
+    }
     /**
      * 注销实时预览
      */

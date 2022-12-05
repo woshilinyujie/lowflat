@@ -409,8 +409,8 @@ public class MainActivity extends AppCompatActivity{
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
 
-        wjaPlayPresenter.initCamera(videoPlayView,funView,"80A036D8D214","3305000000033391",
-                getApplication(),MainActivity.this,bg,funView,time);
+//        wjaPlayPresenter.initCamera(videoPlayView,funView,"80A036D8D214","3305000000033391",
+//                getApplication(),MainActivity.this,bg,funView,time);
     }
 
 
@@ -754,6 +754,7 @@ public class MainActivity extends AppCompatActivity{
                                     break;
                                 case 13://唯一id1
                                     id=split[1];
+                                    wjaPlayPresenter.setDevid(id);
                                     codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle,id);
                                     bean.setDevId(id);
                                     setMq();
