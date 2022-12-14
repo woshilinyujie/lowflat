@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.amap.api.location.AMapLocation;
 import com.google.gson.Gson;
@@ -55,9 +56,7 @@ import com.wl.wlflatproject.Bean.UpdataJsonBean;
 import com.wl.wlflatproject.Bean.UpdateAppBean;
 import com.wl.wlflatproject.Bean.WeatherBean;
 import com.wl.wlflatproject.MUtils.CMDUtils;
-import com.wl.wlflatproject.MUtils.CodeUtils;
 import com.wl.wlflatproject.MUtils.DateUtils;
-import com.wl.wlflatproject.MUtils.DeviceUtils;
 import com.wl.wlflatproject.MUtils.DpUtils;
 import com.wl.wlflatproject.MUtils.GsonUtils;
 import com.wl.wlflatproject.MUtils.LocationUtils;
@@ -96,7 +95,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ru.sir.ymodem.YModem;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     public static int checkNum = 0;//人流检测人数
     public static int checkNumRect = 0;//重置人流检测
     public boolean isDbugOpen = false;
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity{
     @BindView(R.id.open)
     LinearLayout open;
     @BindView(R.id.fun_view)
-    RelativeLayout funView;
+    ConstraintLayout funView;
     @BindView(R.id.view)
     View view;
     @BindView(R.id.time)
@@ -292,7 +291,7 @@ public class MainActivity extends AppCompatActivity{
     private NetStatusReceiver receiver;
     private AMapLocation mAMapLocation;
     private long mExitTime;
-    private boolean isFull = false;
+    public boolean isFull = false;
     private PowerManager.WakeLock wl;
     private FileOutputStream fout;
     private PrintWriter printWriter;
@@ -409,8 +408,8 @@ public class MainActivity extends AppCompatActivity{
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
 
-//        wjaPlayPresenter.initCamera(videoPlayView,funView,"80A036D8D214","3305000000033391",
-//                getApplication(),MainActivity.this,bg,funView,time);
+        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000032444",
+                getApplication(), MainActivity.this, bg, funView, time);
     }
 
 
@@ -480,7 +479,7 @@ public class MainActivity extends AppCompatActivity{
                         handler.sendEmptyMessageDelayed(6, 0);
                     } else {
                         wjaPlayPresenter.setScreen(true);
-                        wjaPlayPresenter.linkCount=0;
+                        wjaPlayPresenter.linkCount = 0;
                         wjaPlayPresenter.queryWAJToken(false);
                     }
                     handler.sendEmptyMessageDelayed(13, 500);
@@ -733,29 +732,29 @@ public class MainActivity extends AppCompatActivity{
                                     openDegreeRepair = split[1];
                                     break;
                                 case 11://设置防夹等级
-                                    switch (split[1]){
+                                    switch (split[1]) {
                                         case "1":
-                                            level="低";
+                                            level = "低";
                                             break;
                                         case "2":
-                                            level="中";
+                                            level = "中";
                                             break;
                                         case "3":
-                                            level="高";
+                                            level = "高";
                                             break;
                                     }
                                     break;
                                 case 12://打开关闭防夹开关
-                                    if(split[1].equals("0")){
-                                        isOPenClamp=false;
-                                    }else{
-                                        isOPenClamp=true;
+                                    if (split[1].equals("0")) {
+                                        isOPenClamp = false;
+                                    } else {
+                                        isOPenClamp = true;
                                     }
                                     break;
                                 case 13://唯一id1
-                                    id=split[1];
+                                    id = split[1];
                                     wjaPlayPresenter.setDevid(id);
-                                    codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle,id);
+                                    codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle, id);
                                     bean.setDevId(id);
                                     setMq();
                                     break;
@@ -838,7 +837,7 @@ public class MainActivity extends AppCompatActivity{
                             writeFile(file, 2 + "");//打开屏幕
                             handler.removeMessages(3);
                             handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                            if (wjaPlayPresenter.getVideoId()==null) {
+                            if (wjaPlayPresenter.getVideoId() == null) {
                                 Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                             } else {
                                 if (!wjaPlayPresenter.isPlaying) {
@@ -901,7 +900,7 @@ public class MainActivity extends AppCompatActivity{
                             try {
                                 String[] split = data.split("=");
                                 if (split.length > 1) {
-                                    wjaPlayPresenter.initCamera(videoPlayView,funView,id,split[1],getApplication(),MainActivity.this,bg,funView,time);
+                                    wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time);
                                 }
                             } catch (Exception e) {
 
@@ -921,14 +920,14 @@ public class MainActivity extends AppCompatActivity{
                             String[] split = data.split("=V");
                             plankVersionCode = Float.parseFloat(split[1]);
                         } else if (data.contains("AT+OPENFG=1")) { //打开防夹
-                            isOPenClamp=true;
+                            isOPenClamp = true;
                             if (setMsgBean == null)
                                 setMsgBean = new SetMsgBean();
                             setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
                             setMsgBean.setMsg("1");
                             EventBus.getDefault().post(setMsgBean);
                         } else if (data.contains("AT+CLOSEFG=1")) { //关闭防夹
-                            isOPenClamp=false;
+                            isOPenClamp = false;
                             if (setMsgBean == null)
                                 setMsgBean = new SetMsgBean();
                             setMsgBean.setFlag(CMDUtils.OPEN_CLAMP);
@@ -1203,8 +1202,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
-
     public class NetStatusReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1458,9 +1455,18 @@ public class MainActivity extends AppCompatActivity{
 
     public void setFullScreen() {
         hideBottomUIMenu();
+//        int width = fullScreen.getMeasuredWidth();
+//        int height = fullScreen.getMeasuredHeight();
+//        videoPlayView.setAspectRatio(width, height);
+//        ViewGroup.LayoutParams params = videoPlayView.getLayoutParams();
+//        params.width = height;
+//        params.height = width;
+//        videoPlayView.setLayoutParams(params);
+//        videoPlayView.invalidate();
+//        videoPlayView.setRotation(-90f);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rl.setLayoutParams(layoutParams);
+        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         funView.setLayoutParams(layoutParams1);
         isFull = true;
     }
@@ -1468,8 +1474,8 @@ public class MainActivity extends AppCompatActivity{
     public void setScreen() {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
-        layoutParams1.rightMargin = screenWidth / 4;
-        layoutParams1.leftMargin = screenWidth / 4;
+        layoutParams1.rightMargin = screenWidth / 5;
+        layoutParams1.leftMargin = screenWidth / 5;
         rl.setLayoutParams(layoutParams);
         funView.setLayoutParams(layoutParams1);
         isFull = false;
@@ -1796,7 +1802,6 @@ public class MainActivity extends AppCompatActivity{
         Log.e("result", "" + errorMsg.toString());
         return successMsg.toString().equalsIgnoreCase("success");
     }
-
 
 
 }

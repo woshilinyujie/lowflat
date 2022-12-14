@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
@@ -58,7 +60,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private boolean isGetToken = false;
     public boolean isPlaying = false;
     private ImageView bg;
-    private RelativeLayout mFunVideoView;
+    private ConstraintLayout mFunVideoView;
     private TextView time;
     private WaitDialogTime1 mWaitDlg1;
     Handler handler = new Handler() {
@@ -71,12 +73,11 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
     public void initCamera(
             WJAVideoView videoPlayView,
-            RelativeLayout videoContainerCl,
             String mDeviceUid,
             String mVideoUid,
             Application application,
             MainActivity context,
-            ImageView bg, RelativeLayout mFunVideoView, TextView time
+            ImageView bg, ConstraintLayout mFunVideoView, TextView time
     ) {
         this.bg=bg;
         this.mFunVideoView=mFunVideoView;
@@ -86,16 +87,18 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         this.mVideoUid = mVideoUid;
         this.videoPlayView = videoPlayView;
         this.application = application;
-        videoContainerCl.post(() -> {
-            int width = videoContainerCl.getMeasuredWidth();
-            int height = videoContainerCl.getMeasuredHeight();
+        mFunVideoView.post(() -> {
+            int width = mFunVideoView.getMeasuredWidth();
+            int height = mFunVideoView.getMeasuredHeight();
             videoPlayView.setAspectRatio(width, height);
             ViewGroup.LayoutParams params = videoPlayView.getLayoutParams();
             params.width = height;
             params.height = width;
-            videoPlayView.invalidate();
+            videoPlayView.setLayoutParams(params);
+//            videoPlayView.invalidate();
             videoPlayView.setRotation(-90f);
         });
+        videoPlayView.setZoom(false);
         videoPlayView.setOnVideoPlayViewListener(this);
         videoPlayView.setOnVideoPlayViewClick(this);
         initAudio(videoPlayView.getContext());
@@ -202,7 +205,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     public void onOnlineStatusNotify(String deviceId, String status) {
                         if ("1".equals(status) && deviceId.equals(mVideoUid)) {
                             // 开始维活
-                            handler.sendEmptyMessageDelayed(0, 5000);
+//                            handler.sendEmptyMessageDelayed(0, 5000);
                             startLink(true);
                         }
                     }
@@ -270,9 +273,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private LinkInfo mLinkInfo;
 
     private void startLink(boolean isUpdateLink) {
-        if (isLinking) return;
         linkCount++;
-        isLinking = true;
         MediaControl.getInstance().getLinkHandler(
                 mVideoUid,
                 WJANetCtrl.getInstance().getWJAToken(),
@@ -348,7 +349,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void destroyMonitor() {
         isPlaying = false;
         if (null != mFunVideoView) {
-            mFunVideoView.setVisibility(View.INVISIBLE);
+            mFunVideoView.setVisibility(View.GONE);
             bg.setBackgroundResource(R.drawable.bg1);
             time.setVisibility(View.VISIBLE);
         }
@@ -360,11 +361,14 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void onHideLoading() {
         if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
             mWaitDlg1.dismiss();
-        mFunVideoView.setVisibility(View.VISIBLE);
-        time.setVisibility(View.GONE);
-        if (fullScreen)
-           context.setFullScreen();
-        isPlaying = true;
+        if(isPlaying)
+            return;
+        if (!context.isFull){
+            context.setFullScreen();
+            mFunVideoView.setVisibility(View.VISIBLE);
+            time.setVisibility(View.GONE);
+            isPlaying = true;
+        }
     }
 
     @Override

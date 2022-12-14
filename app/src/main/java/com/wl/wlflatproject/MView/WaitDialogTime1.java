@@ -25,7 +25,7 @@ public class WaitDialogTime1 extends Dialog {
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case 1:
-                    sendEmptyMessageDelayed(2,4000);
+                    sendEmptyMessageDelayed(2,10000);
                     break;
                 case 2:
                     Toast.makeText(mContext,"设备无响应",Toast.LENGTH_SHORT).show();
