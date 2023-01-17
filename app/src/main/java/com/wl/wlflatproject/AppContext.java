@@ -128,7 +128,6 @@ public class AppContext extends Application {
                 .setRetryCount(3)
                 .addCommonHeaders(headers)
                 .addCommonParams(params);
-        initAVLib(this);
     }
 
     class CrashHandler implements Thread.UncaughtExceptionHandler {
@@ -152,12 +151,5 @@ public class AppContext extends Application {
         }
     }
 
-    private void initAVLib(Application application) {
-        //设置显示
-//            WJANetCtrl.getInstance().getToken()
-            MediaControl.getInstance().setIsShowLog(true);
-            MediaControl.getInstance().initialize(application);
-            Log.d("hsl666", "initAVLib: ---->万佳安初始化");
-    }
 
 }

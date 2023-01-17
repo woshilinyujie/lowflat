@@ -3,6 +3,7 @@ package com.wl.wlflatproject.Activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -72,6 +73,7 @@ import com.wl.wlflatproject.MView.WJAVideoView;
 import com.wl.wlflatproject.MView.WaitDialogTime;
 import com.wl.wlflatproject.Presenter.WJAPlayPresenter;
 import com.wl.wlflatproject.R;
+import com.worthcloud.avlib.basemedia.MediaControl;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -328,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
+        initAVLib(this);
         threads = Executors.newFixedThreadPool(3);
         wjaPlayPresenter = new WJAPlayPresenter();
         normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -366,9 +369,6 @@ public class MainActivity extends AppCompatActivity {
         if (dialogTime == null)
             dialogTime = new WaitDialogTime(this, android.R.style.Theme_Translucent_NoTitleBar);
         requestPermission();
-//        id = CodeUtils.getMacAddr();
-        //低配屏id通过 板子返回   暂时使用这个测试
-//        id = DeviceUtils.getSerialNumber(this);
         Log.e("获得Mac地址", id + "");
         rbmq = new RbMqUtils();
         bean.setAck(0);
@@ -408,8 +408,8 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(6, 1000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
 
-        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000032444",
-                getApplication(), MainActivity.this, bg, funView, time);
+//        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000051587",
+//                getApplication(), MainActivity.this, bg, funView, time);
     }
 
 
@@ -1803,5 +1803,11 @@ public class MainActivity extends AppCompatActivity {
         return successMsg.toString().equalsIgnoreCase("success");
     }
 
-
+    private void initAVLib(Context context) {
+        //设置显示
+//            WJANetCtrl.getInstance().getToken()
+        MediaControl.getInstance().setIsShowLog(true);
+        MediaControl.getInstance().initialize(context);
+        Log.d("hsl666", "initAVLib: ---->万佳安初始化");
+    }
 }

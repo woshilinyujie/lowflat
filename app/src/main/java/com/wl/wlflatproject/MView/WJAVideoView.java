@@ -41,7 +41,7 @@ public class WJAVideoView extends VideoPlayView {
             if (width > height * this.mRatioWidth / this.mRatioHeight) {
                 this.setMeasuredDimension(width, width * this.mRatioHeight / this.mRatioWidth);
             } else {
-                this.setMeasuredDimension(height * this.mRatioWidth / this.mRatioHeight, height);
+                this.setMeasuredDimension(height * this.mRatioWidth / this.mRatioHeight+380, height);
             }
         } else {
             this.setMeasuredDimension(width, height);
