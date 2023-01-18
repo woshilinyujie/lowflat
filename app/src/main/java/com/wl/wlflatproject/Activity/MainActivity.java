@@ -74,6 +74,7 @@ import com.wl.wlflatproject.MView.WaitDialogTime;
 import com.wl.wlflatproject.Presenter.WJAPlayPresenter;
 import com.wl.wlflatproject.R;
 import com.worthcloud.avlib.basemedia.MediaControl;
+import com.worthcloud.avlib.basemedia.NetApiManager;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -284,6 +285,10 @@ public class MainActivity extends AppCompatActivity {
                     serialPort.flag = true;
                     serialPort.readCode(dataListener);
                     break;
+                case 16:
+                    NetApiManager.getInstance().reConMQ();
+                    Log.e("万家安；","重连---------");
+                    break;
             }
         }
     };
@@ -354,7 +359,8 @@ public class MainActivity extends AppCompatActivity {
 
             SPUtil.getInstance(this).setSettingParam("doorSelect", 0);
         }
-
+        WifiReceiver wifiReceiver = new WifiReceiver();
+        registerWifiReceiver(wifiReceiver);
 
         fHeight = DpUtils.dip2px(this, 500);
         WindowManager windowManager = getWindowManager();
@@ -1809,5 +1815,32 @@ public class MainActivity extends AppCompatActivity {
         MediaControl.getInstance().setIsShowLog(true);
         MediaControl.getInstance().initialize(context);
         Log.d("hsl666", "initAVLib: ---->万佳安初始化");
+    }
+
+    private void registerWifiReceiver(WifiReceiver mWifiReceiver) {
+        if (mWifiReceiver == null) return;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mWifiReceiver, filter);
+    }
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
+                    Log.e("万家安；","断网---------");
+                    NetApiManager.getInstance().mqttDisconnect();
+                } else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                    if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+                        Log.e("万家安；","联网---------");
+                        handler.removeMessages(16);
+                        handler.sendEmptyMessageDelayed(16,2000);
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,8 +1,10 @@
 package com.wl.wlflatproject.Activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -162,7 +164,7 @@ public class SettingActivity1 extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.update,R.id.door_select, R.id.entry_door, R.id.experience, R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
+    @OnClick({R.id.reboot,R.id.update,R.id.door_select, R.id.entry_door, R.id.experience, R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
     public void onViewClicked(View view) {
         if (setDialog == null) {
             setDialog = new SetDialog(SettingActivity1.this, R.style.mDialog);
@@ -171,6 +173,15 @@ public class SettingActivity1 extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.back:
                 finish();
+                break;
+            case R.id.reboot:
+                Intent reboot = new Intent(Intent.ACTION_REBOOT);
+                reboot.putExtra("nowait", 1);
+                reboot.putExtra("interval", 1);
+                reboot.putExtra("window", 0);
+                sendBroadcast(reboot);
+                PowerManager pManager=(PowerManager) getSystemService(Context.POWER_SERVICE);
+                pManager.reboot("");
                 break;
             case R.id.update:
                 if (waitDialogTime == null)
