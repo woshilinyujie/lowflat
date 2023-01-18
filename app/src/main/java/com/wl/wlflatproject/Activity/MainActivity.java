@@ -455,7 +455,11 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.fun_view:
                 if (!isFull) {
-                    setFullScreen();
+                    if(wjaPlayPresenter.isPlaying){
+                        setFullScreen();
+                    }else{
+
+                    }
                 } else {
                     setScreen();
                 }
