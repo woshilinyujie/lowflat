@@ -59,6 +59,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private MainActivity context;
     private boolean isGetToken = false;
     public boolean isPlaying = false;
+    public boolean isPlaying1 = false;//防止延迟结束全屏问题bug的变量
     private ImageView bg;
     private ConstraintLayout mFunVideoView;
     private TextView time;
@@ -143,8 +144,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
-        String path = "http://ums-test.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
+        String path = "https://ums-test.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -160,6 +160,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     WJANetCtrl.getInstance().setToken(wjaTokenBean.getData().getToken());
                     if (wjaTokenBean.getData().getOnlineStatus() == 1) {
                         mWaitDlg1.setWaitText("摄像头在线 开始link");
+                        setResolutionRatio(wjaTokenBean.getData().getToken());//
                         startLink(true);
                     } else {
                         mWaitDlg1.setWaitText("摄像头不在线 开始唤醒");
@@ -173,7 +174,6 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                 Toast.makeText(context, "获取wja token接口失败", Toast.LENGTH_SHORT).show();
                 if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
                     mWaitDlg1.dismiss();
-                Toast.makeText(context, "摄像头唤醒失败", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -189,8 +189,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-//        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/wakeUpCameraParameters";
-        String path = "http://ums-test.wonlycloud.com:10301//api/aigang/wanjiaan/wakeUpCameraParameters";
+        String path = "https://ums-test.wonlycloud.com:10301/api/aigang/wanjiaan/wakeUpCameraParameters";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -254,6 +253,40 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         });
     }
 
+
+
+    //设置分辨率
+    private void setResolutionRatio(String token) {
+//        mWaitDlg1.setWaitText("设置分辨率");
+        JSONObject data = new JSONObject();
+        try {
+            data.put("token", token);
+            data.put("ipcSn", mVideoUid);
+            data.put("videoQuality", 0);
+            Utils.setSignJson(data, application);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String path = "https://ums-test.wonlycloud.com:10301/api/aigang/wanjiaan/setVideoQualidy";
+        OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
+            @Override
+            public void onSuccess(Response<String> response) {
+//                mWaitDlg1.setWaitText("设置分辨率成功");
+
+            }
+
+            @Override
+            public void onError(Response<String> response) {
+//                Toast.makeText(context, "设置分辨率接口调用失败", Toast.LENGTH_SHORT).show();
+//                if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+//                    mWaitDlg1.dismiss();
+            }
+        });
+    }
+
+
+
     /**
      * 维活指令
      */
@@ -313,6 +346,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                         } else if (p0 == 0x2004) {
                             errorStr = "Link失败";
                             wakeUpCamera();
+                        }else if (p0 == 0x4001) {
+                            MediaControl.getInstance().setIsShowLog(true);
+                            MediaControl.getInstance().initialize(context);
+                            NetApiManager.getInstance().mqttDisconnect();
+                            NetApiManager.getInstance().reConMQ();
+                            Log.d("hsl666", "initAVLib: ---->万佳安初始化");
                         }
                         mWaitDlg1.setWaitText("link失败 link次数："+linkCount+"失败码："+p0);
                         if (linkCount > 5) {
@@ -349,17 +388,24 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void setDevid(String id){
         mDeviceUid=id;
     }
+    public void setVideoid(String id){
+        mVideoUid=id;
+    }
     /**
      * 注销实时预览
      */
     public void destroyMonitor() {
+        isPlaying1=false;
         if (null != mFunVideoView) {
             mFunVideoView.setVisibility(View.GONE);
             bg.setBackgroundResource(R.drawable.bg1);
             time.setVisibility(View.VISIBLE);
+            context.setScreen();
         }
-        if(!TextUtils.isEmpty(mVideoUid))
-        MediaControl.getInstance().destroyLink(mVideoUid);
+        stopMonitor();
+        if(!TextUtils.isEmpty(mVideoUid)) {
+            MediaControl.getInstance().destroyLink(mVideoUid);
+        }
         handler.sendEmptyMessageDelayed(0,2000);
     }
 
@@ -371,9 +417,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             return;
         if (!context.isFull){
             context.setFullScreen();
+            if(mFunVideoView.getVisibility()!=View.VISIBLE)
             mFunVideoView.setVisibility(View.VISIBLE);
+            if(time.getVisibility()!=View.GONE)
             time.setVisibility(View.GONE);
             isPlaying = true;
+            isPlaying1=true;
         }
     }
 

@@ -53,7 +53,6 @@
             android:layout_height="match_parent">
 
             <com.wl.wlflatproject.MView.WJAVideoView
-
                 android:id="@+id/video_play_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

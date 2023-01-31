@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
     private String closePower = "--";//关门力度
     private boolean isOPenClamp = false;//是否打开防夹
     private boolean watherClick = false;
+    private long lastClickTime;
     static String lcddisplay = "/sys/gpio_test_attr/lcd_power";
     File file = new File(lcddisplay);
     Handler handler = new Handler() {
@@ -212,6 +213,10 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what) {
                 case 0:
                     try {
+                        if(!NetApiManager.getInstance().isMqConnect()){
+                            NetApiManager.getInstance().mqttDisconnect();
+                            NetApiManager.getInstance().reConMQ();
+                        }
                         if (wifiManager == null)
                             wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -266,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 7:
 //                    fHeight = funView.getMeasuredHeight();
-                    setScreen();
+                       setScreen();
                     break;
                 case 8:
                     num.setText("当前室内人数：" + checkNum + "人");
@@ -318,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
     private String fileUrl;
     private IntentFilter intentFilter;
     private float plankVersionCode;
-
+    public boolean isFirstSetScreen=true;
     @SuppressLint("InvalidWakeLockTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -332,10 +337,10 @@ public class MainActivity extends AppCompatActivity {
         wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
         wl.acquire();
         hideBottomUIMenu();
+        Sync();
     }
 
     private void initData() {
-        initAVLib(this);
         threads = Executors.newFixedThreadPool(3);
         wjaPlayPresenter = new WJAPlayPresenter();
         normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -404,6 +409,11 @@ public class MainActivity extends AppCompatActivity {
         codeBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(id==null){
+                    Toast.makeText(MainActivity.this,"请稍后再试",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 codeDialog.show();
                 handler.sendEmptyMessageDelayed(13, 500);
             }
@@ -455,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.fun_view:
                 if (!isFull) {
-                    if(wjaPlayPresenter.isPlaying){
+                    if(wjaPlayPresenter.isPlaying   &&wjaPlayPresenter.isPlaying1){
                         setFullScreen();
                     }else{
 
@@ -488,6 +498,15 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "未检测到摄像头（如果有摄像头请尝试通过王力智能客户端配置WIFI）", Toast.LENGTH_SHORT).show();
                         handler.sendEmptyMessageDelayed(6, 0);
                     } else {
+                        if(!isFastClick()){
+                            Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if(TextUtils.isEmpty(id)){
+                            Toast.makeText(MainActivity.this, "设备初始化中，请稍后", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         wjaPlayPresenter.setScreen(true);
                         wjaPlayPresenter.linkCount = 0;
                         wjaPlayPresenter.queryWAJToken(false);
@@ -910,7 +929,18 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 String[] split = data.split("=");
                                 if (split.length > 1) {
-                                    wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time);
+                                    if(isFirstSetScreen){
+                                        initAVLib(MainActivity.this);
+                                        wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time);
+                                    }else{
+                                        wjaPlayPresenter.setDevid(id);
+                                        wjaPlayPresenter.setVideoid(split[1]);
+                                    }
+                                    NetApiManager.getInstance().mqttDisconnect();
+                                    NetApiManager.getInstance().reConMQ();
+                                    //只设置一次
+                                    handler.sendEmptyMessageDelayed(7,1000);
+                                    isFirstSetScreen=false;
                                 }
                             } catch (Exception e) {
 
@@ -1846,5 +1876,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+
+    //防止断电回滚
+    public void Sync(){
+        try {
+            Runtime.getRuntime().exec("sync");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public  boolean isFastClick() {
+        boolean flag = false;
+        long curClickTime = System.currentTimeMillis();
+        if ((curClickTime - lastClickTime) >= 3000) {
+            flag = true;
+        }
+        lastClickTime = curClickTime;
+        return flag;
     }
 }
