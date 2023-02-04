@@ -103,6 +103,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         videoPlayView.setOnVideoPlayViewListener(this);
         videoPlayView.setOnVideoPlayViewClick(this);
         initAudio(videoPlayView.getContext());
+        mFunVideoView.setVisibility(View.GONE);
     }
 
     public String getVideoId() {

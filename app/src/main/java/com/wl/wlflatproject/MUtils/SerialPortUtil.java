@@ -23,7 +23,10 @@ public class SerialPortUtil {
     public boolean flag=true;
     public ExecutorService threads;
     private SerialPortUtil.DataListener dataListener;
+
+
     public static SerialPortUtil getInstance() {
+        Log.e("串口；","getInstance");
         if (mSerialPortUtil == null) {
             mSerialPortUtil = new SerialPortUtil();
         } else {
@@ -39,15 +42,19 @@ public class SerialPortUtil {
     }
 
     private void init() {
+        Log.e("串口；","初始化");
         if (mSerialPort == null) {
             String path;
-                path = "/dev/ttyAS3";//串口地址
+                path = "/dev/ttyS4";//串口地址
             int baurate = 9600;
             try {
+                Log.e("串口；",path);
                 mSerialPort = new SerialPort(new File(path), baurate, 0);
                 inputStream=new BufferedReader(new InputStreamReader(mSerialPort.getInputStream()));
                 outputStream = mSerialPort.getOutputStream();
+                Log.e("串口；","创建成功");
             } catch (IOException e) {
+                Log.e("串口；","报错");
                 e.printStackTrace();
             }
         }
@@ -77,6 +84,7 @@ public class SerialPortUtil {
             threads.execute(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e("串口；","监听");
                     while (flag) {
                         try {
                             String s = inputStream.readLine();
@@ -97,11 +105,19 @@ public class SerialPortUtil {
     }
     public void close(){
         if(mSerialPort!=null){
-            mSerialPort.close();
+            try {
+                flag=false;
+                inputStream.close();
+                outputStream.close();
+                mSerialPort.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             mSerialPort=null;
-            mSerialPortUtil=null;
             inputStream=null;
             outputStream=null;
+            mSerialPortUtil=null;
+            Log.e("串口；",(mSerialPortUtil==null)+"");
         }
     }
     public interface DataListener{
