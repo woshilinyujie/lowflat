@@ -291,8 +291,12 @@ public class MainActivity extends AppCompatActivity {
                     serialPort.readCode(dataListener);
                     break;
                 case 16:
-                    NetApiManager.getInstance().reConMQ();
-                    Log.e("万家安；","重连---------");
+                    try {
+                        Log.e("万家安；","重连---------");
+                        NetApiManager.getInstance().reConMQ();
+                    }catch (Exception e){
+
+                    }
                     break;
             }
         }
@@ -384,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
         rbmq = new RbMqUtils();
         bean.setAck(0);
         bean.setCmd(0x46);
-        bean.setDevType("WL025S1");
+        bean.setDevType("WL025S1-W");
         bean.setDevId(id);
         bean.setSeqId(1);
         bean.setTime(System.currentTimeMillis() / 1000);

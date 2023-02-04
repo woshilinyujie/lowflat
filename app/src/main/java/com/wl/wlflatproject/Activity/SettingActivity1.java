@@ -84,6 +84,7 @@ public class SettingActivity1 extends AppCompatActivity {
         EventBus.getDefault().register(this);
         Intent intent = getIntent();
         waitTimeTv.setText(intent.getStringExtra("openDoorWaitTime") + "秒");
+        value=intent.getStringExtra("openDoorWaitTime");
         if(getIntent().getBooleanExtra("isOPenClamp",false)){
             antiPinchTv.setText("开");
         }else{
@@ -208,7 +209,7 @@ public class SettingActivity1 extends AppCompatActivity {
                 startActivityForResult(intent1, 100);
                 break;
             case R.id.wait_time:
-                setDialog.show(4);
+                setDialog.show(4,value);
                 break;
             case R.id.experience:
                 if (normalDialog == null)
