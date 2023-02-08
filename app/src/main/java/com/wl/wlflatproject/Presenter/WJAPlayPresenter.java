@@ -262,7 +262,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         try {
             data.put("token", token);
             data.put("ipcSn", mVideoUid);
-            data.put("videoQuality", 0);
+            data.put("videoQuality", 1);
             Utils.setSignJson(data, application);
         } catch (JSONException e) {
             e.printStackTrace();

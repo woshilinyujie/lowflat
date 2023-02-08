@@ -217,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
                             NetApiManager.getInstance().mqttDisconnect();
                             NetApiManager.getInstance().reConMQ();
                         }
+                    }catch (Exception e){
+
+                    }
+                    try {
                         if (wifiManager == null)
                             wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -298,6 +302,9 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                     break;
+                case 17:
+                    initSerialPort();
+                    break;
             }
         }
     };
@@ -335,7 +342,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initData();
-        initSerialPort();
         initCalendar();
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
@@ -425,8 +431,9 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
         handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         handler.sendEmptyMessage(4);
-        handler.sendEmptyMessageDelayed(6, 1000);
+        handler.sendEmptyMessageDelayed(6, 2000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
+        handler.sendEmptyMessageDelayed(17, 1000);
 
 //        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000051587",
 //                getApplication(), MainActivity.this, bg, funView, time);

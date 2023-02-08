@@ -96,7 +96,13 @@ public class SerialPortUtil {
         }
     }
     public void close(){
-        if(mSerialPort!=null){
+        if(mSerialPort!= null){
+            try {
+                inputStream.close();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             mSerialPort.close();
             mSerialPort=null;
             mSerialPortUtil=null;
