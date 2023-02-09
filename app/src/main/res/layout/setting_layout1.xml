@@ -183,7 +183,6 @@
 
 
         <RelativeLayout
-            android:visibility="gone"
             android:id="@+id/activation"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_60"
@@ -215,7 +214,6 @@
 
 
         <RelativeLayout
-            android:visibility="gone"
             android:id="@+id/system"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_60"
@@ -247,7 +245,6 @@
 
 
         <RelativeLayout
-            android:visibility="gone"
             android:id="@+id/engineering_mode"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_60"
@@ -331,6 +328,7 @@
                 android:background="#56616c" />
         </RelativeLayout>
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/entry_door"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_60"
@@ -392,6 +390,7 @@
 
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/update"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_60"
