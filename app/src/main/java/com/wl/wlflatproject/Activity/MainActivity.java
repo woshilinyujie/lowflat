@@ -602,22 +602,22 @@ public class MainActivity extends AppCompatActivity {
                 if (baseBean != null) {
                     switch (baseBean.getCmd()) {
                         case 0x1001://通知小管家
-                            OpenTvBean openTvBean = GsonUtils.GsonToBean(msg, OpenTvBean.class);
-                            if (openTvBean.getAct() == 1) {
-                                Log.e("小管家开视频---", s);
-                                handler.removeMessages(1);
-                                writeFile(file, 2 + "");//打开屏幕
-                                handler.removeMessages(3);
-                                handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
-                                if (wjaPlayPresenter.getVideoId() == null) {
-                                    Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    if (!wjaPlayPresenter.isPlaying) {
-                                        wjaPlayPresenter.setScreen(true);
-                                        wjaPlayPresenter.queryWAJToken(false);
-                                    }
-                                }
-                            }
+//                            OpenTvBean openTvBean = GsonUtils.GsonToBean(msg, OpenTvBean.class);
+//                            if (openTvBean.getAct() == 1) {
+//                                Log.e("小管家开视频---", s);
+//                                handler.removeMessages(1);
+//                                writeFile(file, 2 + "");//打开屏幕
+//                                handler.removeMessages(3);
+//                                handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
+//                                if (wjaPlayPresenter.getVideoId() == null) {
+//                                    Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
+//                                } else {
+//                                    if (!wjaPlayPresenter.isPlaying) {
+//                                        wjaPlayPresenter.setScreen(true);
+//                                        wjaPlayPresenter.queryWAJToken(false);
+//                                    }
+//                                }
+//                            }
                             break;
                         case 0x1101://重置人流检测
                             ConnectBean connectBean = GsonUtils.GsonToBean(msg, ConnectBean.class);
