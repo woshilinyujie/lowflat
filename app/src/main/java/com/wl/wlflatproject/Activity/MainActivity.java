@@ -1209,6 +1209,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mLocationUtils.startLocation();
+        String dayOrMonthOrYear = dateUtils.getDayOrMonthOrYear(System.currentTimeMillis());
+        dateTv.setText(dayOrMonthOrYear);
         hideBottomUIMenu();
 //        handler.sendEmptyMessageDelayed(7, 2000);/
 //        setNavigationBar(this,false);
