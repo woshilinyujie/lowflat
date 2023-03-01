@@ -710,7 +710,7 @@ public class MainActivity extends AppCompatActivity {
                                     OpenTvBean bean = new OpenTvBean();
                                     bean.setCmd(0x1009);
                                     bean.setAck(0);
-                                    bean.setDevType("WL025S1");
+                                    bean.setDevType("WL025S1-W");
                                     bean.setDevid(id);
                                     bean.setVendor("general");
                                     bean.setSeqid(1);
@@ -1603,7 +1603,7 @@ public class MainActivity extends AppCompatActivity {
         bodyBean.setVendor_name("general");
         bodyBean.setPlatform("android");
 
-        bodyBean.setEndpoint_type("WL025S1-Sign");
+        bodyBean.setEndpoint_type("WL025S1-Sign-W-H");
 
         bodyBean.setCurrent_version(version + "");
 
