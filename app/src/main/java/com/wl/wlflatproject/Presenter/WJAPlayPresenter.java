@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -25,8 +26,10 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wl.wlflatproject.Activity.MainActivity;
+import com.wl.wlflatproject.Bean.TimeBean;
 import com.wl.wlflatproject.Bean.WJAParamBean;
 import com.wl.wlflatproject.Bean.WJATokenBean;
+import com.wl.wlflatproject.MUtils.GsonUtils;
 import com.wl.wlflatproject.MUtils.StringCallBack;
 import com.wl.wlflatproject.MUtils.Utils;
 import com.wl.wlflatproject.MView.WJAVideoView;
@@ -285,6 +288,28 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             }
         });
     }
+
+
+
+
+    public void getSystemTime() {
+        String path = "https://ums-test.wonlycloud.com:10301/api/aigang/getTimeStamp";
+        OkGo.<String>post(path).execute(new StringCallback() {
+            @Override
+            public void onSuccess(Response<String> response) {
+                TimeBean bean=GsonUtils.GsonToBean(response.body(), TimeBean.class);
+                SystemClock.setCurrentTimeMillis(bean.getData().getMillisecond());
+            }
+
+            @Override
+            public void onError(Response<String> response) {
+            }
+        });
+    }
+
+
+
+
 
 
 

@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(6, 2000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
         handler.sendEmptyMessageDelayed(17, 1000);
-
+        wjaPlayPresenter.getSystemTime();
 //        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000051587",
 //                getApplication(), MainActivity.this, bg, funView, time);
     }
