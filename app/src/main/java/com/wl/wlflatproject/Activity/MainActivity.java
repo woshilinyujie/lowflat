@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(6, 2000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
         handler.sendEmptyMessageDelayed(17, 1000);
-
+        wjaPlayPresenter.getSystemTime();
 //        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000051587",
 //                getApplication(), MainActivity.this, bg, funView, time);
     }
@@ -710,7 +710,7 @@ public class MainActivity extends AppCompatActivity {
                                     OpenTvBean bean = new OpenTvBean();
                                     bean.setCmd(0x1009);
                                     bean.setAck(0);
-                                    bean.setDevType("WL025S1");
+                                    bean.setDevType("WL025S1-W");
                                     bean.setDevid(id);
                                     bean.setVendor("general");
                                     bean.setSeqid(1);
@@ -1212,6 +1212,8 @@ public class MainActivity extends AppCompatActivity {
         String dayOrMonthOrYear = dateUtils.getDayOrMonthOrYear(System.currentTimeMillis());
         dateTv.setText(dayOrMonthOrYear);
         mLocationUtils.startLocation();
+        String dayOrMonthOrYear = dateUtils.getDayOrMonthOrYear(System.currentTimeMillis());
+        dateTv.setText(dayOrMonthOrYear);
         hideBottomUIMenu();
 //        handler.sendEmptyMessageDelayed(7, 2000);/
 //        setNavigationBar(this,false);
@@ -1604,7 +1606,7 @@ public class MainActivity extends AppCompatActivity {
         bodyBean.setVendor_name("general");
         bodyBean.setPlatform("android");
 
-        bodyBean.setEndpoint_type("WL025S1-Sign");
+        bodyBean.setEndpoint_type("WL025S1-Sign-W-H");
 
         bodyBean.setCurrent_version(version + "");
 
