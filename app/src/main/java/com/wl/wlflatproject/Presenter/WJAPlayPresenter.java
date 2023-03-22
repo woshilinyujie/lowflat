@@ -67,6 +67,8 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private ConstraintLayout mFunVideoView;
     private TextView time;
     private WaitDialogTime1 mWaitDlg1;
+//        private String baseUrl="http://ums-test.wonlycloud.com:10301/";
+    private String baseUrl="https://ums-ag.wonlycloud.com:10301/";
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -148,7 +150,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/getCameraPullFlowToken";
+        String path = baseUrl+"api/aigang/wanjiaan/getCameraPullFlowToken";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -193,7 +195,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/wakeUpCameraParameters";
+        String path = baseUrl+"api/aigang/wanjiaan/wakeUpCameraParameters";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -272,7 +274,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/wanjiaan/setVideoQualidy";
+        String path = baseUrl+"api/aigang/wanjiaan/setVideoQualidy";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {

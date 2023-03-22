@@ -1208,9 +1208,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DateUtils dateUtils = DateUtils.getInstance();
-        String dayOrMonthOrYear = dateUtils.getDayOrMonthOrYear(System.currentTimeMillis());
-        dateTv.setText(dayOrMonthOrYear);
         mLocationUtils.startLocation();
         String dayOrMonthOrYear = dateUtils.getDayOrMonthOrYear(System.currentTimeMillis());
         dateTv.setText(dayOrMonthOrYear);
