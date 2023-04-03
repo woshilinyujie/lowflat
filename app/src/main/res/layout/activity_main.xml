@@ -14,7 +14,7 @@
     <RelativeLayout
         android:id="@+id/rl"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="500dp"
         android:layout_marginBottom="@dimen/dp_8">
 
 
@@ -52,7 +52,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.wl.wlflatproject.MView.WJAVideoView
+            <com.wl.wlflatproject.MView.SimpleUVCCameraTextureView
+                android:layout_marginTop="@dimen/dp_60"
+                android:layout_marginBottom="@dimen/dp_60"
+                android:rotation="-90"
+                android:scaleY="-1.0"
                 android:id="@+id/video_play_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

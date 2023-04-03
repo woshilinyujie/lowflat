@@ -3,11 +3,12 @@ package com.wl.wlflatproject.Activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.SurfaceTexture;
+import android.hardware.usb.UsbDevice;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -21,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -43,6 +45,11 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.qtimes.service.wonly.client.QtimesServiceManager;
+import com.serenegiant.usb.DeviceFilter;
+import com.serenegiant.usb.IButtonCallback;
+import com.serenegiant.usb.IStatusCallback;
+import com.serenegiant.usb.USBMonitor;
+import com.serenegiant.usb.UVCCamera;
 import com.wl.wlflatproject.Bean.BaseBean;
 import com.wl.wlflatproject.Bean.CalendarParam;
 import com.wl.wlflatproject.Bean.CheckNumBean;
@@ -69,12 +76,10 @@ import com.wl.wlflatproject.MUtils.VersionUtils;
 import com.wl.wlflatproject.MUtils.YmodleUtils;
 import com.wl.wlflatproject.MView.CodeDialog;
 import com.wl.wlflatproject.MView.NormalDialog;
-import com.wl.wlflatproject.MView.WJAVideoView;
+import com.wl.wlflatproject.MView.SimpleUVCCameraTextureView;
 import com.wl.wlflatproject.MView.WaitDialogTime;
 import com.wl.wlflatproject.Presenter.WJAPlayPresenter;
 import com.wl.wlflatproject.R;
-import com.worthcloud.avlib.basemedia.MediaControl;
-import com.worthcloud.avlib.basemedia.NetApiManager;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -88,6 +93,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.rl)
     RelativeLayout rl;
     @BindView(R.id.video_play_view)
-    WJAVideoView videoPlayView;
+    SimpleUVCCameraTextureView videoPlayView;
     @BindView(R.id.lock_bt)
     LinearLayout lockBt;
     @BindView(R.id.video_iv)
@@ -205,21 +211,16 @@ public class MainActivity extends AppCompatActivity {
     private boolean watherClick = false;
     private long lastClickTime;
     static String lcddisplay = "/sys/gpio_test_attr/lcd_power";
+    private long mWorkerThreadID = -1;
     File file = new File(lcddisplay);
+    private UVCCamera mUVCCamera;
+    private Surface mPreviewSurface;
     Handler handler = new Handler() {
         @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
-                    try {
-                        if(!NetApiManager.getInstance().isMqConnect()){
-                            NetApiManager.getInstance().mqttDisconnect();
-                            NetApiManager.getInstance().reConMQ();
-                        }
-                    }catch (Exception e){
-
-                    }
                     try {
                         if (wifiManager == null)
                             wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
@@ -241,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     if (isFull)
                         setScreen();
-                    wjaPlayPresenter.destroyMonitor();
+                    releaseCamera();
                     Log.e("有人离开停止视频", "..");
                     break;
                 case 2:
@@ -267,15 +268,8 @@ public class MainActivity extends AppCompatActivity {
                 case 5:
                     serialPort.sendDate("+DATATOPAD\r\n".getBytes());
                     break;
-                case 6:
-                    Log.e("发送摄像头id", "。。。。");
-                    serialPort.sendDate("+PublishVideoSn：\r\n".getBytes());
-                    serialPort.sendDate("+Publishwifissid：\r\n".getBytes());
-                    serialPort.sendDate("+GETVER\r\n".getBytes());
-                    break;
                 case 7:
-//                    fHeight = funView.getMeasuredHeight();
-                       setScreen();
+                    setScreen();
                     break;
                 case 8:
                     num.setText("当前室内人数：" + checkNum + "人");
@@ -294,15 +288,8 @@ public class MainActivity extends AppCompatActivity {
                     serialPort.flag = true;
                     serialPort.readCode(dataListener);
                     break;
-                case 16:
-                    try {
-                        Log.e("万家安；","重连---------");
-                        NetApiManager.getInstance().reConMQ();
-                    }catch (Exception e){
-
-                    }
-                    break;
                 case 17:
+                    mWorkerThreadID = handler.getLooper().getThread().getId();
                     initSerialPort();
                     break;
             }
@@ -334,7 +321,11 @@ public class MainActivity extends AppCompatActivity {
     private String fileUrl;
     private IntentFilter intentFilter;
     private float plankVersionCode;
-    public boolean isFirstSetScreen=true;
+    private USBMonitor mUSBMonitor;
+    private boolean isPlaying = false;
+    private UVCCamera camera;
+    private List<UsbDevice> deviceList;
+
     @SuppressLint("InvalidWakeLockTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,33 +342,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
+        mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
+        mUSBMonitor.register();
+        final List<DeviceFilter> filter = DeviceFilter.getDeviceFilters(this,
+                com.serenegiant.uvccamera.R.xml.device_filter);
+        deviceList = mUSBMonitor.getDeviceList(filter.get(0));
+        if (deviceList.size() < 0) {
+            Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
+        }
         threads = Executors.newFixedThreadPool(3);
         wjaPlayPresenter = new WJAPlayPresenter();
-        normalDialog = new NormalDialog(this, R.style.mDialog);
-        int select = SPUtil.getInstance(this).getSettingParam("doorSelect", 0);
-        if (select == 1) {//母门
-            doorSelectLl.setVisibility(View.VISIBLE);
-            videoIv.setVisibility(View.GONE);
-            lockBt.setVisibility(View.GONE);
-            lockSingle.setVisibility(View.VISIBLE);
-            lockDouble.setVisibility(View.VISIBLE);
-            SPUtil.getInstance(this).setSettingParam("doorSelect", 1);
-        } else if (select == 2) {//子门
-            doorSelectLl.setVisibility(View.GONE);
-            SPUtil.getInstance(this).setSettingParam("doorSelect", 2);
-        } else if (select == 0) {//随心门
-            doorSelectLl.setVisibility(View.VISIBLE);
-            videoIv.setVisibility(View.VISIBLE);
-            lockBt.setVisibility(View.VISIBLE);
-            lockSingle.setVisibility(View.GONE);
-            lockDouble.setVisibility(View.GONE);
+        handler.sendEmptyMessageAtTime(0, 1000);
+        doorSelectLl.setVisibility(View.VISIBLE);
+        videoIv.setVisibility(View.VISIBLE);
+        lockBt.setVisibility(View.VISIBLE);
+        lockSingle.setVisibility(View.GONE);
 
-            SPUtil.getInstance(this).setSettingParam("doorSelect", 0);
-        }
         WifiReceiver wifiReceiver = new WifiReceiver();
         registerWifiReceiver(wifiReceiver);
 
-        fHeight = DpUtils.dip2px(this, 300);
+        fHeight = DpUtils.dip2px(this, 500);
         WindowManager windowManager = getWindowManager();
         screenWidth = windowManager.getDefaultDisplay().getWidth();
         screenHight = windowManager.getDefaultDisplay().getHeight();
@@ -419,8 +403,8 @@ public class MainActivity extends AppCompatActivity {
         codeBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(id==null){
-                    Toast.makeText(MainActivity.this,"请稍后再试",Toast.LENGTH_SHORT).show();
+                if (id == null) {
+                    Toast.makeText(MainActivity.this, "请稍后再试", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -431,12 +415,16 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
         handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         handler.sendEmptyMessage(4);
-        handler.sendEmptyMessageDelayed(6, 2000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
         handler.sendEmptyMessageDelayed(17, 1000);
         wjaPlayPresenter.getSystemTime();
-//        wjaPlayPresenter.initCamera(videoPlayView, "E9:1F:0C:00:00:00:20:2B:08:0B", "3305000000051587",
-//                getApplication(), MainActivity.this, bg, funView, time);
+        final List<DeviceFilter> filter1 = DeviceFilter.getDeviceFilters(this,
+                com.serenegiant.uvccamera.R.xml.device_filter);
+        List<UsbDevice> deviceList = mUSBMonitor.getDeviceList(filter1.get(0));
+        if (deviceList.size() < 0) {
+            Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
@@ -476,9 +464,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.fun_view:
                 if (!isFull) {
-                    if(wjaPlayPresenter.isPlaying   &&wjaPlayPresenter.isPlaying1){
+                    if (isPlaying) {
                         setFullScreen();
-                    }else{
+                    } else {
 
                     }
                 } else {
@@ -501,40 +489,21 @@ public class MainActivity extends AppCompatActivity {
                 handler.sendEmptyMessageDelayed(13, 500);
                 break;
             case R.id.video_iv:
-                if (!wjaPlayPresenter.isPlaying) {
+                if (!isPlaying) {
                     //打开视频
                     handler.removeMessages(1);
-                    handler.sendEmptyMessageDelayed(1, 60000);
-                    if (wjaPlayPresenter.getVideoId() == null) {
-                        Toast.makeText(MainActivity.this, "未检测到摄像头（如果有摄像头请尝试通过王力智能客户端配置WIFI）", Toast.LENGTH_SHORT).show();
-                        handler.sendEmptyMessageDelayed(6, 0);
-                    } else {
-                        if(!isFastClick()){
-                            Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if(TextUtils.isEmpty(id)){
-                            Toast.makeText(MainActivity.this, "设备初始化中，请稍后", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        wjaPlayPresenter.setScreen(true);
-                        wjaPlayPresenter.linkCount = 0;
-                        wjaPlayPresenter.queryWAJToken(false);
+                    if (!isFastClick()) {
+                        Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    mUSBMonitor.requestPermission(deviceList.get(0));
                     handler.sendEmptyMessageDelayed(13, 500);
                 } else {
-                    wjaPlayPresenter.destroyMonitor();
+                    releaseCamera();
                 }
 
                 break;
             case R.id.changkai:
-//                downLoadFile = new File( "/storage/emulated/0/Download/Gate_注释小角度慢速度防夹_20211207.bin");
-//                if (downLoadFile.exists()) {
-//                    //暂停一下 别的 接收
-//                    serialPort.flag=false;
-//                    serialPort.sendDate(("+REQUESTACK" +"\r\n").getBytes());
-//                }
                 if (changkaiFlag == 1) {
                     dialogTime.show();
                     serialPort.sendDate("+ALWAYSOPEN\r\n".getBytes());
@@ -602,22 +571,6 @@ public class MainActivity extends AppCompatActivity {
                 if (baseBean != null) {
                     switch (baseBean.getCmd()) {
                         case 0x1001://通知小管家
-//                            OpenTvBean openTvBean = GsonUtils.GsonToBean(msg, OpenTvBean.class);
-//                            if (openTvBean.getAct() == 1) {
-//                                Log.e("小管家开视频---", s);
-//                                handler.removeMessages(1);
-//                                writeFile(file, 2 + "");//打开屏幕
-//                                handler.removeMessages(3);
-//                                handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
-//                                if (wjaPlayPresenter.getVideoId() == null) {
-//                                    Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
-//                                } else {
-//                                    if (!wjaPlayPresenter.isPlaying) {
-//                                        wjaPlayPresenter.setScreen(true);
-//                                        wjaPlayPresenter.queryWAJToken(false);
-//                                    }
-//                                }
-//                            }
                             break;
                         case 0x1101://重置人流检测
                             ConnectBean connectBean = GsonUtils.GsonToBean(msg, ConnectBean.class);
@@ -660,7 +613,7 @@ public class MainActivity extends AppCompatActivity {
      * 串口socket
      */
     private void initSerialPort() {
-        Log.e("串口；","initSerialPort");
+        Log.e("串口；", "initSerialPort");
         serialPort = SerialPortUtil.getInstance();
         serialPort.setThread(threads);
         handler.sendEmptyMessageDelayed(5, 2000);
@@ -794,7 +747,6 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                                 case 13://唯一id1
                                     id = split[1];
-                                    wjaPlayPresenter.setDevid(id);
                                     codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle, id);
                                     bean.setDevId(id);
                                     setMq();
@@ -878,13 +830,11 @@ public class MainActivity extends AppCompatActivity {
                             writeFile(file, 2 + "");//打开屏幕
                             handler.removeMessages(3);
                             handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                            if (wjaPlayPresenter.getVideoId() == null) {
-                                Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
-                            } else {
-                                if (!wjaPlayPresenter.isPlaying) {
-                                    wjaPlayPresenter.setScreen(true);
-                                    wjaPlayPresenter.queryWAJToken(false);
+                            if (!isPlaying) {
+                                if (!isFastClick()) {
+                                    return;
                                 }
+                                mUSBMonitor.requestPermission(deviceList.get(0));
                             }
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
                             if (setMsgBean == null)
@@ -908,13 +858,11 @@ public class MainActivity extends AppCompatActivity {
                                         writeFile(file, 2 + "");//打开屏幕
                                         handler.removeMessages(3);
                                         handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                                        if (wjaPlayPresenter.getVideoId() == null) {
-                                            Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            if (!wjaPlayPresenter.isPlaying) {
-                                                wjaPlayPresenter.setScreen(true);
-                                                wjaPlayPresenter.queryWAJToken(false);
+                                        if (!isPlaying){
+                                            if (!isFastClick()) {
+                                                return;
                                             }
+                                            mUSBMonitor.requestPermission(deviceList.get(0));
                                         }
                                     }
                                     break;
@@ -937,26 +885,6 @@ public class MainActivity extends AppCompatActivity {
                         } else if (data.contains("AT+CCLK?")) {//上报时间
                             serialPort.sendDate(("+CCLK:" + System.currentTimeMillis() + "\r\n").getBytes());
                         } else if (data.contains("AT+VIDEOSN=")) { //设置摄像头id
-                            Log.e("收到摄像头id", "----" + data);
-                            try {
-                                String[] split = data.split("=");
-                                if (split.length > 1) {
-                                    if(isFirstSetScreen){
-                                        initAVLib(MainActivity.this);
-                                        wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time);
-                                    }else{
-                                        wjaPlayPresenter.setDevid(id);
-                                        wjaPlayPresenter.setVideoid(split[1]);
-                                    }
-                                    NetApiManager.getInstance().mqttDisconnect();
-                                    NetApiManager.getInstance().reConMQ();
-                                    //只设置一次
-                                    handler.sendEmptyMessageDelayed(7,1000);
-                                    isFirstSetScreen=false;
-                                }
-                            } catch (Exception e) {
-
-                            }
                         } else if (data.contains("AT+WIFISSID=")) { //设置摄像头wifi
                             Log.e("收到摄像头wifi", "----" + data);
                             try {
@@ -1046,28 +974,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    public void sendCheckNum(int i) {
-//        if (i == 0) {
-//            checkNumRect = checkNumRect - 1;
-//        } else {
-//            checkNumRect = checkNumRect + 1;
-//        }
-//        SPUtil.getInstance(MainActivity.this).setSettingParam("checkNumRect", checkNumRect);
-//        if (checkNumBean == null) {
-//            checkNumBean = new CheckNumBean();
-//            checkNumBean.setCmd(0x1100);
-//            checkNumBean.setAck(0);
-//            checkNumBean.setDevType("WL025S1");
-//            checkNumBean.setDevid(DeviceUtils.getSerialNumber(MainActivity.this));
-//            checkNumBean.setVendor("general");
-//            checkNumBean.setSeqid(1);
-//        }
-//        checkNumBean.setLockNum(checkNumRect);
-//        checkNumBean.setTotalNum(0);
-//        long l = System.currentTimeMillis() / 1000;
-//        checkNumBean.setTime(l);
-//        rbmq.pushMsg(DeviceUtils.getSerialNumber(MainActivity.this) + "#" + GsonUtils.GsonString(checkNumBean));
-//    }
 
 
     //---------------------eventBus----------------
@@ -1243,16 +1149,26 @@ public class MainActivity extends AppCompatActivity {
         handler.removeMessages(2);
         handler.removeMessages(3);
         handler.removeMessages(4);
-        Log.e("串口；","ondestroy");
+        Log.e("串口；", "ondestroy");
         serialPort.close();
         serialPort.flag = false;
-        wjaPlayPresenter.destroyMonitor();
+        releaseCamera();
         mLocationUtils.destroyLocationClient();
         unregisterReceiver(receiver);
-//        if(mTimeReceiver!=null)
-//        unregisterReceiver(mTimeReceiver);
         wl.release();
         EventBus.getDefault().unregister(this);
+        if (camera != null) {
+            camera.stopPreview();
+        }
+        if (mUSBMonitor != null) {
+            mUSBMonitor.unregister();
+        }
+        releaseCamera();
+        if (mUSBMonitor != null) {
+            mUSBMonitor.destroy();
+            mUSBMonitor = null;
+        }
+
         super.onDestroy();
     }
 
@@ -1510,15 +1426,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void setFullScreen() {
         hideBottomUIMenu();
-//        int width = fullScreen.getMeasuredWidth();
-//        int height = fullScreen.getMeasuredHeight();
-//        videoPlayView.setAspectRatio(width, height);
-//        ViewGroup.LayoutParams params = videoPlayView.getLayoutParams();
-//        params.width = height;
-//        params.height = width;
-//        videoPlayView.setLayoutParams(params);
-//        videoPlayView.invalidate();
-//        videoPlayView.setRotation(-90f);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rl.setLayoutParams(layoutParams);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -1529,8 +1436,8 @@ public class MainActivity extends AppCompatActivity {
     public void setScreen() {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
-        layoutParams1.rightMargin = screenWidth / 4;
-        layoutParams1.leftMargin = screenWidth / 4;
+        layoutParams1.rightMargin = screenWidth / 5;
+        layoutParams1.leftMargin = screenWidth / 5;
         rl.setLayoutParams(layoutParams);
         funView.setLayoutParams(layoutParams1);
         isFull = false;
@@ -1858,13 +1765,6 @@ public class MainActivity extends AppCompatActivity {
         return successMsg.toString().equalsIgnoreCase("success");
     }
 
-    private void initAVLib(Context context) {
-        //设置显示
-//            WJANetCtrl.getInstance().getToken()
-        MediaControl.getInstance().setIsShowLog(true);
-        MediaControl.getInstance().initialize(context);
-        Log.d("hsl666", "initAVLib: ---->万佳安初始化");
-    }
 
     private void registerWifiReceiver(WifiReceiver mWifiReceiver) {
         if (mWifiReceiver == null) return;
@@ -1874,19 +1774,19 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(mWifiReceiver, filter);
     }
+
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
-                    Log.e("万家安；","断网---------");
-                    NetApiManager.getInstance().mqttDisconnect();
+                    Log.e("万家安；", "断网---------");
                 } else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
                     if (info.getType() == ConnectivityManager.TYPE_WIFI) {
-                        Log.e("万家安；","联网---------");
+                        Log.e("万家安；", "联网---------");
                         handler.removeMessages(16);
-                        handler.sendEmptyMessageDelayed(16,2000);
+                        handler.sendEmptyMessageDelayed(16, 2000);
                     }
                 }
             }
@@ -1895,7 +1795,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //防止断电回滚
-    public void Sync(){
+    public void Sync() {
         try {
             Runtime.getRuntime().exec("sync");
         } catch (IOException e) {
@@ -1903,7 +1803,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public  boolean isFastClick() {
+    public boolean isFastClick() {
         boolean flag = false;
         long curClickTime = System.currentTimeMillis();
         if ((curClickTime - lastClickTime) >= 3000) {
@@ -1914,4 +1814,120 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //本地摄像头链接
+    private final USBMonitor.OnDeviceConnectListener mOnDeviceConnectListener = new USBMonitor.OnDeviceConnectListener() {
+        @Override
+        public void onAttach(final UsbDevice device) {
+            Toast.makeText(MainActivity.this, "USB_DEVICE_ATTACHED", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onConnect(final UsbDevice device, final USBMonitor.UsbControlBlock ctrlBlock, final boolean createNew) {
+            releaseCamera();
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    camera = new UVCCamera();
+                    camera.setStatusCallback(new IStatusCallback() {
+                        @Override
+                        public void onStatus(final int statusClass, final int event, final int selector,
+                                             final int statusAttribute, final ByteBuffer data) {
+                            Toast.makeText(MainActivity.this, "视像头初始化失败，请检测摄像头是否链接", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    camera.setButtonCallback(new IButtonCallback() {
+                        @Override
+                        public void onButton(final int button, final int state) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                }
+                            });
+                        }
+                    });
+                    int i = camera.open(ctrlBlock);
+                    if (i != 0) {
+                        return;
+                    }
+                    if (mPreviewSurface != null) {
+                        mPreviewSurface.release();
+                        mPreviewSurface = null;
+                    }
+                    final SurfaceTexture st = videoPlayView.getSurfaceTexture();
+                    if (st != null) {
+                        mPreviewSurface = new Surface(st);
+                        camera.setPreviewDisplay(mPreviewSurface);
+                        camera.startPreview();
+                    }
+                    isPlaying = true;
+                    time.setVisibility(View.GONE);
+                }
+            }, 0);
+        }
+
+        @Override
+        public void onDisconnect(final UsbDevice device, final USBMonitor.UsbControlBlock ctrlBlock) {
+            // XXX you should check whether the coming device equal to camera device that currently using
+            releaseCamera();
+        }
+
+        @Override
+        public void onDettach(final UsbDevice device) {
+            Toast.makeText(MainActivity.this, "USB_DEVICE_DETACHED", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onCancel(final UsbDevice device) {
+        }
+    };
+
+    private synchronized void releaseCamera() {
+        synchronized (this) {
+            if (camera != null) {
+                try {
+                    camera.setStatusCallback(null);
+                    camera.setButtonCallback(null);
+                    camera.close();
+                    camera.destroy();
+                    camera = null;
+                } catch (final Exception e) {
+                    //
+                }
+            }
+            if (mPreviewSurface != null) {
+                mPreviewSurface.release();
+                mPreviewSurface = null;
+            }
+            isPlaying = false;
+            time.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected final synchronized void queueEvent(final Runnable task, final long delayMillis) {
+        if ((task == null) || (handler == null)) return;
+        try {
+            handler.removeCallbacks(task);
+            if (delayMillis > 0) {
+                handler.postDelayed(task, delayMillis);
+            } else if (mWorkerThreadID == Thread.currentThread().getId()) {
+                task.run();
+            } else {
+                handler.post(task);
+            }
+        } catch (final Exception e) {
+            // ignore
+        }
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

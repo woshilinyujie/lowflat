@@ -18,9 +18,6 @@ import com.lzy.okgo.model.HttpParams;
 import com.wl.wlflatproject.Activity.MainActivity;
 import com.wl.wlflatproject.MUtils.SafeHostnameVerifier;
 import com.wl.wlflatproject.MUtils.SafeTrustManager;
-import com.worthcloud.avlib.basemedia.MediaControl;
-
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import okhttp3.OkHttpClient;
