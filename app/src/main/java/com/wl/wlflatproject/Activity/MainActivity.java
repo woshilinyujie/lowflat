@@ -424,7 +424,16 @@ public class MainActivity extends AppCompatActivity {
         if (deviceList.size() < 0) {
             Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
         }
-
+        funView.postDelayed(() -> {
+            int width = funView.getMeasuredWidth();
+            int height = funView.getMeasuredHeight();
+            videoPlayView.setAspectRatio(width, height);
+            ViewGroup.LayoutParams params = videoPlayView.getLayoutParams();
+            params.width = height;
+            params.height = width;
+            videoPlayView.setLayoutParams(params);
+            videoPlayView.setRotation(-90f);
+        },1000);
     }
 
 
@@ -1163,7 +1172,6 @@ public class MainActivity extends AppCompatActivity {
         if (mUSBMonitor != null) {
             mUSBMonitor.unregister();
         }
-        releaseCamera();
         if (mUSBMonitor != null) {
             mUSBMonitor.destroy();
             mUSBMonitor = null;
@@ -1423,13 +1431,14 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
     public void setFullScreen() {
         hideBottomUIMenu();
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rl.setLayoutParams(layoutParams);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         funView.setLayoutParams(layoutParams1);
+        videoPlayView.setScaleX(1f);
+        videoPlayView.setScaleY(-1f);
         isFull = true;
     }
 
@@ -1440,9 +1449,12 @@ public class MainActivity extends AppCompatActivity {
         layoutParams1.leftMargin = screenWidth / 5;
         rl.setLayoutParams(layoutParams);
         funView.setLayoutParams(layoutParams1);
+        videoPlayView.setScaleX(0.5f);
+        videoPlayView.setScaleY(-0.5f);
+
+
         isFull = false;
     }
-
 
     private void requestPermission() {
         AndPermission.with(this)
@@ -1861,6 +1873,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     isPlaying = true;
                     time.setVisibility(View.GONE);
+                    videoPlayView.setVisibility(View.VISIBLE);
+                    setFullScreen();
                 }
             }, 0);
         }
@@ -1900,6 +1914,7 @@ public class MainActivity extends AppCompatActivity {
             }
             isPlaying = false;
             time.setVisibility(View.VISIBLE);
+            videoPlayView.setVisibility(View.INVISIBLE);
         }
     }
 

@@ -26,6 +26,7 @@ package com.wl.wlflatproject.MView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.TextureView;
+import android.view.View;
 
 /**
  * change the view size with keeping the specified aspect ratio.
@@ -69,37 +70,31 @@ public class SimpleUVCCameraTextureView extends TextureView	// API >= 14
         }
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-		if (mRequestedAspect > 0) {
-			int initialWidth = MeasureSpec.getSize(widthMeasureSpec);
-			int initialHeight = MeasureSpec.getSize(heightMeasureSpec);
+    int mRatioWidth;
+    int mRatioHeight;
+	public void setAspectRatio(int width, int height) {
+		if (width >= 0 && height >= 0) {
+			this.mRatioWidth = width;
+			this.mRatioHeight = height;
+		}
+	}
 
-			final int horizPadding = getPaddingLeft() + getPaddingRight();
-			final int vertPadding = getPaddingTop() + getPaddingBottom();
-			initialWidth -= horizPadding;
-			initialHeight -= vertPadding;
 
-			final double viewAspectRatio = (double)initialWidth / initialHeight;
-			final double aspectDiff = mRequestedAspect / viewAspectRatio - 1;
-
-			if (Math.abs(aspectDiff) > 0.01) {
-				if (aspectDiff > 0) {
-					// width priority decision
-					initialHeight = (int) (initialWidth / mRequestedAspect);
-				} else {
-					// height priority decison
-					initialWidth = (int) (initialHeight * mRequestedAspect);
-				}
-				initialWidth += horizPadding;
-				initialHeight += vertPadding;
-				widthMeasureSpec = MeasureSpec.makeMeasureSpec(initialWidth, MeasureSpec.EXACTLY);
-				heightMeasureSpec = MeasureSpec.makeMeasureSpec(initialHeight, MeasureSpec.EXACTLY);
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		int width = View.MeasureSpec.getSize(widthMeasureSpec);
+		int height = View.MeasureSpec.getSize(heightMeasureSpec);
+		if (0 != this.mRatioWidth && 0 != this.mRatioHeight) {
+			if (width > height * this.mRatioWidth / this.mRatioHeight) {
+				this.setMeasuredDimension(width, width * this.mRatioHeight / this.mRatioWidth);
+			} else {
+				int i = height * this.mRatioWidth / this.mRatioHeight;
+				this.setMeasuredDimension(height * this.mRatioWidth / this.mRatioHeight+380, height);
 			}
+		} else {
+			this.setMeasuredDimension(width, height);
 		}
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
+	}
 }
