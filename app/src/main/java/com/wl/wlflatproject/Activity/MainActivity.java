@@ -268,9 +268,6 @@ public class MainActivity extends AppCompatActivity {
                 case 5:
                     serialPort.sendDate("+DATATOPAD\r\n".getBytes());
                     break;
-                case 7:
-                    setScreen();
-                    break;
                 case 8:
                     num.setText("当前室内人数：" + checkNum + "人");
                     break;
@@ -500,11 +497,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.video_iv:
                 if (!isPlaying) {
                     //打开视频
-                    handler.removeMessages(1);
                     if (!isFastClick()) {
                         Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    handler.removeMessages(1);
+                    handler.sendEmptyMessageDelayed(1, 60000);
                     mUSBMonitor.requestPermission(deviceList.get(0));
                     handler.sendEmptyMessageDelayed(13, 500);
                 } else {
@@ -834,7 +832,7 @@ public class MainActivity extends AppCompatActivity {
                             handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
                         } else if (data.contains("AT+CDBELL=1")) {   //门铃
                             handler.removeMessages(1);
-                            handler.sendEmptyMessageDelayed(1, 20000);
+                            handler.sendEmptyMessageDelayed(1, 60000);
                             Log.e("有人按门铃", "..");
                             writeFile(file, 2 + "");//打开屏幕
                             handler.removeMessages(3);
@@ -858,7 +856,7 @@ public class MainActivity extends AppCompatActivity {
                             switch (split1[0]) {
                                 case "0"://表示前板检测到遮挡  门外
                                     if (split1[1].equals("0")) {//人离开
-                                        handler.sendEmptyMessageDelayed(1, 20000);
+                                        handler.sendEmptyMessageDelayed(1, 60000);
                                         Log.e("" +
                                                 "", "..");
                                     } else {//人靠近
@@ -1896,6 +1894,9 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
+        if(!isPlaying){
+            return;
+        }
         synchronized (this) {
             if (camera != null) {
                 try {
