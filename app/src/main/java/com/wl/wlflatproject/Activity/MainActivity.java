@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.SurfaceTexture;
 import android.hardware.usb.UsbDevice;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -285,6 +286,9 @@ public class MainActivity extends AppCompatActivity {
                     serialPort.flag = true;
                     serialPort.readCode(dataListener);
                     break;
+                case 18:
+                    mediaplayer.pause();
+                    break;
                 case 17:
                     mWorkerThreadID = handler.getLooper().getThread().getId();
                     initSerialPort();
@@ -322,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isPlaying = false;
     private UVCCamera camera;
     private List<UsbDevice> deviceList;
+    private MediaPlayer mediaplayer;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -339,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
+        mediaplayer = MediaPlayer.create(this, R.raw.alarm);
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
         mUSBMonitor.register();
         final List<DeviceFilter> filter = DeviceFilter.getDeviceFilters(this,
@@ -499,6 +505,10 @@ public class MainActivity extends AppCompatActivity {
                     //打开视频
                     if (!isFastClick()) {
                         Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if(deviceList.size()==0){
+                        Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     handler.removeMessages(1);
@@ -837,12 +847,22 @@ public class MainActivity extends AppCompatActivity {
                             writeFile(file, 2 + "");//打开屏幕
                             handler.removeMessages(3);
                             handler.sendEmptyMessageDelayed(3, 1000 * 30);
+
+
+                            //门铃声音
+                            if(!mediaplayer.isPlaying()){
+                                mediaplayer.setLooping(true);//设置为循环播放
+                                mediaplayer.start();
+                                handler.sendEmptyMessageDelayed(16,10000);
+                            }
+
                             if (!isPlaying) {
                                 if (!isFastClick()) {
                                     return;
                                 }
                                 mUSBMonitor.requestPermission(deviceList.get(0));
                             }
+
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
                             if (setMsgBean == null)
                                 setMsgBean = new SetMsgBean();
@@ -1174,7 +1194,8 @@ public class MainActivity extends AppCompatActivity {
             mUSBMonitor.destroy();
             mUSBMonitor = null;
         }
-
+        mediaplayer.stop();
+        mediaplayer.release();
         super.onDestroy();
     }
 
