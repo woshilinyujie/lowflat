@@ -503,8 +503,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.video_iv:
                 if (!wjaPlayPresenter.isPlaying) {
                     //打开视频
-                    handler.removeMessages(1);
-                    handler.sendEmptyMessageDelayed(1, 60000);
                     if (wjaPlayPresenter.getVideoId() == null) {
                         Toast.makeText(MainActivity.this, "未检测到摄像头（如果有摄像头请尝试通过王力智能客户端配置WIFI）", Toast.LENGTH_SHORT).show();
                         handler.sendEmptyMessageDelayed(6, 0);
@@ -518,6 +516,8 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "设备初始化中，请稍后", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        handler.removeMessages(1);
+                        handler.sendEmptyMessageDelayed(1, 60000);
                         wjaPlayPresenter.setScreen(true);
                         wjaPlayPresenter.linkCount = 0;
                         wjaPlayPresenter.queryWAJToken(false);
@@ -882,6 +882,8 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                             } else {
                                 if (!wjaPlayPresenter.isPlaying) {
+                                    handler.removeMessages(1);
+                                    handler.sendEmptyMessageDelayed(1, 60000);
                                     wjaPlayPresenter.setScreen(true);
                                     wjaPlayPresenter.queryWAJToken(false);
                                 }
@@ -912,6 +914,8 @@ public class MainActivity extends AppCompatActivity {
                                             Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                                         } else {
                                             if (!wjaPlayPresenter.isPlaying) {
+                                                handler.removeMessages(1);
+                                                handler.sendEmptyMessageDelayed(1, 60000);
                                                 wjaPlayPresenter.setScreen(true);
                                                 wjaPlayPresenter.queryWAJToken(false);
                                             }
