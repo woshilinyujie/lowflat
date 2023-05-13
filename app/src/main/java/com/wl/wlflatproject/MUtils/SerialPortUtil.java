@@ -45,7 +45,7 @@ public class SerialPortUtil {
         Log.e("串口；","初始化");
         if (mSerialPort == null) {
             String path;
-                path = "/dev/ttyS4";//串口地址
+            path = "/dev/ttyS4";//串口地址
             int baurate = 9600;
             try {
                 Log.e("串口；",path);
@@ -61,7 +61,7 @@ public class SerialPortUtil {
     }
 
     public void startSerialPortUtil(){
-                init();
+        init();
     }
 
 
@@ -125,4 +125,3 @@ public class SerialPortUtil {
     }
 
 }
-

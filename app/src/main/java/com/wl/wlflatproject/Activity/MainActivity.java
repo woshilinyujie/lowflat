@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         WifiReceiver wifiReceiver = new WifiReceiver();
         registerWifiReceiver(wifiReceiver);
 
-        fHeight = DpUtils.dip2px(this, 500);
+        fHeight = DpUtils.dip2px(this, 300);
         WindowManager windowManager = getWindowManager();
         screenWidth = windowManager.getDefaultDisplay().getWidth();
         screenHight = windowManager.getDefaultDisplay().getHeight();
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
         rbmq = new RbMqUtils();
         bean.setAck(0);
         bean.setCmd(0x46);
-        bean.setDevType("WL025S1-W");
+        bean.setDevType("WL025S1-W-L");
         bean.setDevId(id);
         bean.setSeqId(1);
         bean.setTime(System.currentTimeMillis() / 1000);
@@ -680,7 +680,7 @@ public class MainActivity extends AppCompatActivity {
                                     OpenTvBean bean = new OpenTvBean();
                                     bean.setCmd(0x1009);
                                     bean.setAck(0);
-                                    bean.setDevType("WL025S1-W");
+                                    bean.setDevType("WL025S1-W-L");
                                     bean.setDevid(id);
                                     bean.setVendor("general");
                                     bean.setSeqid(1);
@@ -1464,8 +1464,8 @@ public class MainActivity extends AppCompatActivity {
     public void setScreen() {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fHeight);
-        layoutParams1.rightMargin = screenWidth / 5;
-        layoutParams1.leftMargin = screenWidth / 5;
+        layoutParams1.rightMargin = screenWidth / 4;
+        layoutParams1.leftMargin = screenWidth / 4;
         rl.setLayoutParams(layoutParams);
         funView.setLayoutParams(layoutParams1);
         videoPlayView.setScaleX(0.5f);
@@ -1854,7 +1854,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onConnect(final UsbDevice device, final USBMonitor.UsbControlBlock ctrlBlock, final boolean createNew) {
-            releaseCamera();
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
@@ -1901,7 +1900,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDisconnect(final UsbDevice device, final USBMonitor.UsbControlBlock ctrlBlock) {
             // XXX you should check whether the coming device equal to camera device that currently using
-            releaseCamera();
+
         }
 
         @Override
@@ -1915,6 +1914,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
+        Log.e("测试1","---yingc");
         if(!isPlaying){
             return;
         }
@@ -1937,6 +1937,7 @@ public class MainActivity extends AppCompatActivity {
             isPlaying = false;
             time.setVisibility(View.VISIBLE);
             videoPlayView.setVisibility(View.INVISIBLE);
+            Log.e("测试","---yingc");
         }
     }
 

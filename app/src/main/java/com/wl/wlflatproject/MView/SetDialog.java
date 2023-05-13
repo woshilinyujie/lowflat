@@ -12,7 +12,6 @@ import com.wl.wlflatproject.R;
 
 
 public class SetDialog extends Dialog {
-
     private NumberPickerView start;
     private String s[] = new String[]{"67", "72", "77", "82", "87", "92", "97", "102", "107", "112", "117", "122", "127",
             "132", "137", "142", "147", "152", "157", "162", "167", "172", "177", "182", "187"};//修正角度
@@ -59,12 +58,12 @@ public class SetDialog extends Dialog {
 
     public int getIndex(String ss[], String value) {
         int index=0;
-            for(int x=0;x< ss.length;x++){
-                if(ss[x].equals(value)){
-                    index=x;
-                }
+        for(int x=0;x< ss.length;x++){
+            if(ss[x].equals(value)){
+                index=x;
             }
-            return index;
+        }
+        return index;
     }
 
     public void show(int flag, String value) {

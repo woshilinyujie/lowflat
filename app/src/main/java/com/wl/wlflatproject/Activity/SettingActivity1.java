@@ -313,28 +313,24 @@ public class SettingActivity1 extends AppCompatActivity {
 
                 break;
             case R.id.anti_pinch://防夹
-                boolean a = getIntent().getBooleanExtra("isOPenClamp",false);
+                boolean a = QtimesServiceManager.instance().getAntiPinchStatus();
                 if (normalDialog == null)
                     normalDialog = new NormalDialog(this, R.style.mDialog);
                 normalDialog.show();
                 normalDialog.setTitleText("防夹");
-                if (a) {
+                if(a){
                     normalDialog.setContentText("点击关闭防夹");
-                } else {
+                }else {
                     normalDialog.setContentText("点击开启防夹");
                 }
                 normalDialog.getConfirmTv().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         normalDialog.dismiss();
-                        if (waitDialogTime == null)
-                            waitDialogTime = new WaitDialogTime(SettingActivity1.this, android.R.style.Theme_Translucent_NoTitleBar);
-                        waitDialogTime.show();
-                        if(!a){
-                            SerialPortUtil.getInstance().sendDate(("+OPENFG" + "\r\n").getBytes());
-                        }else{
-                            SerialPortUtil.getInstance().sendDate(("+CLOSEFG" + "\r\n").getBytes());
+                        if (!QtimesServiceManager.instance().isServerActive()) {
+                            QtimesServiceManager.instance().connect(SettingActivity1.this);
                         }
+                        boolean b = QtimesServiceManager.instance().resetAntiPinch();
                     }
                 });
                 break;

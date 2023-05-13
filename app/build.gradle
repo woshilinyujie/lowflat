@@ -36,7 +36,7 @@ android {
         debug {
             keyAlias 'flat'
             keyPassword 'wl2019'
-            storeFile file('../low_flat.keystore')
+            storeFile file('../flat-high.keystore')
             storePassword 'wl2019'
         }
         release {
