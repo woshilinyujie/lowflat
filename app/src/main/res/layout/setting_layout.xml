@@ -283,7 +283,6 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:visibility="gone"
             android:id="@+id/open_degree_repair"
             android:paddingRight="@dimen/dp_11"
             android:paddingLeft="@dimen/dp_11"

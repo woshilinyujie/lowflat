@@ -109,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
     public static int checkNum = 0;//人流检测人数
     public static int checkNumRect = 0;//重置人流检测
     public boolean isDbugOpen = false;
-    @BindView(R.id.bg)
-    ImageView bg;
     @BindView(R.id.open)
     LinearLayout open;
     @BindView(R.id.fun_view)
@@ -292,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 case 17:
                     mWorkerThreadID = handler.getLooper().getThread().getId();
                     initSerialPort();
+                    releaseCamera();
                     break;
             }
         }
@@ -436,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
             params.height = width;
             videoPlayView.setLayoutParams(params);
             videoPlayView.setRotation(-90f);
-        },1000);
+        }, 1000);
     }
 
 
@@ -507,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if(deviceList.size()==0){
+                    if (deviceList.size() == 0) {
                         Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -850,10 +849,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                             //门铃声音
-                            if(!mediaplayer.isPlaying()){
+                            if (!mediaplayer.isPlaying()) {
                                 mediaplayer.setLooping(true);//设置为循环播放
                                 mediaplayer.start();
-                                handler.sendEmptyMessageDelayed(16,10000);
+                                handler.sendEmptyMessageDelayed(16, 10000);
                             }
 
                             if (!isPlaying) {
@@ -885,7 +884,7 @@ public class MainActivity extends AppCompatActivity {
                                         writeFile(file, 2 + "");//打开屏幕
                                         handler.removeMessages(3);
                                         handler.sendEmptyMessageDelayed(3, 1000 * 30);
-                                        if (!isPlaying){
+                                        if (!isPlaying) {
                                             if (!isFastClick()) {
                                                 return;
                                             }
@@ -999,8 +998,6 @@ public class MainActivity extends AppCompatActivity {
 
         serialPort.readCode(dataListener);
     }
-
-
 
 
     //---------------------eventBus----------------
@@ -1891,6 +1888,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     isPlaying = true;
                     time.setVisibility(View.GONE);
+                    codeBt.setVisibility(View.GONE);
                     videoPlayView.setVisibility(View.VISIBLE);
                     setFullScreen();
                 }
@@ -1914,31 +1912,30 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
-        Log.e("测试1","---yingc");
-        if(!isPlaying){
+        time.setVisibility(View.VISIBLE);
+        codeBt.setVisibility(View.VISIBLE);
+        videoPlayView.setVisibility(View.INVISIBLE);
+        Log.e("测试1", "---yingc");
+        if (!isPlaying) {
             return;
         }
-        synchronized (this) {
-            if (camera != null) {
-                try {
-                    camera.setStatusCallback(null);
-                    camera.setButtonCallback(null);
-                    camera.close();
-                    camera.destroy();
-                    camera = null;
-                } catch (final Exception e) {
-                    //
-                }
+        if (camera != null) {
+            try {
+                camera.setStatusCallback(null);
+                camera.setButtonCallback(null);
+                camera.close();
+                camera.destroy();
+                camera = null;
+            } catch (final Exception e) {
+                //
             }
-            if (mPreviewSurface != null) {
-                mPreviewSurface.release();
-                mPreviewSurface = null;
-            }
-            isPlaying = false;
-            time.setVisibility(View.VISIBLE);
-            videoPlayView.setVisibility(View.INVISIBLE);
-            Log.e("测试","---yingc");
         }
+        if (mPreviewSurface != null) {
+            mPreviewSurface.release();
+            mPreviewSurface = null;
+        }
+        isPlaying = false;
+        Log.e("测试", "---yingc");
     }
 
     protected final synchronized void queueEvent(final Runnable task, final long delayMillis) {
