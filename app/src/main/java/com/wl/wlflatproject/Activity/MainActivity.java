@@ -326,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
     private UVCCamera camera;
     private List<UsbDevice> deviceList;
     private MediaPlayer mediaplayer;
+    private List<DeviceFilter> filter;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -346,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         mediaplayer = MediaPlayer.create(this, R.raw.alarm);
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
         mUSBMonitor.register();
-        final List<DeviceFilter> filter = DeviceFilter.getDeviceFilters(this,
+        filter = DeviceFilter.getDeviceFilters(this,
                 com.serenegiant.uvccamera.R.xml.device_filter);
         deviceList = mUSBMonitor.getDeviceList(filter.get(0));
         if (deviceList.size() < 0) {
@@ -420,9 +421,6 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
         handler.sendEmptyMessageDelayed(17, 1000);
         wjaPlayPresenter.getSystemTime();
-        final List<DeviceFilter> filter1 = DeviceFilter.getDeviceFilters(this,
-                com.serenegiant.uvccamera.R.xml.device_filter);
-        List<UsbDevice> deviceList = mUSBMonitor.getDeviceList(filter1.get(0));
         if (deviceList.size() < 0) {
             Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
         }
@@ -502,6 +500,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.video_iv:
                 if (!isPlaying) {
                     //打开视频
+                    if(deviceList.size()!=2){
+                        deviceList = mUSBMonitor.getDeviceList(filter.get(0));
+                    }
                     if (!isFastClick()) {
                         Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
                         return;
@@ -512,7 +513,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 60000);
-                    mUSBMonitor.requestPermission(deviceList.get(0));
+                    if(deviceList.size()>1){
+                        mUSBMonitor.requestPermission(deviceList.get(1));
+                    }else{
+                        mUSBMonitor.requestPermission(deviceList.get(0));
+                    }
                     handler.sendEmptyMessageDelayed(13, 500);
                 } else {
                     releaseCamera();
@@ -849,17 +854,24 @@ public class MainActivity extends AppCompatActivity {
 
 
                             //门铃声音
-                            if (!mediaplayer.isPlaying()) {
-                                mediaplayer.setLooping(true);//设置为循环播放
-                                mediaplayer.start();
-                                handler.sendEmptyMessageDelayed(16, 10000);
-                            }
+//                            if (!mediaplayer.isPlaying()) {
+//                                mediaplayer.setLooping(true);//设置为循环播放
+//                                mediaplayer.start();
+//                                handler.sendEmptyMessageDelayed(16, 10000);
+//                            }
 
+                            if(deviceList.size()==0){
+                                return;
+                            }
                             if (!isPlaying) {
                                 if (!isFastClick()) {
                                     return;
                                 }
-                                mUSBMonitor.requestPermission(deviceList.get(0));
+                                if(deviceList.size()>1){
+                                    mUSBMonitor.requestPermission(deviceList.get(1));
+                                }else{
+                                    mUSBMonitor.requestPermission(deviceList.get(0));
+                                }
                             }
 
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
@@ -884,11 +896,18 @@ public class MainActivity extends AppCompatActivity {
                                         writeFile(file, 2 + "");//打开屏幕
                                         handler.removeMessages(3);
                                         handler.sendEmptyMessageDelayed(3, 1000 * 30);
+                                        if(deviceList.size()==0){
+                                            return;
+                                        }
                                         if (!isPlaying) {
                                             if (!isFastClick()) {
                                                 return;
                                             }
-                                            mUSBMonitor.requestPermission(deviceList.get(0));
+                                            if(deviceList.size()>1){
+                                                mUSBMonitor.requestPermission(deviceList.get(1));
+                                            }else{
+                                                mUSBMonitor.requestPermission(deviceList.get(0));
+                                            }
                                         }
                                     }
                                     break;
