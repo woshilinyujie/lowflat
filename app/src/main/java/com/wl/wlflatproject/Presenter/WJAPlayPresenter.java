@@ -295,7 +295,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
 
     public void getSystemTime() {
-        String path = "https://ums-test.wonlycloud.com:10301/api/aigang/getTimeStamp";
+        String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/getTimeStamp";
         OkGo.<String>post(path).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -315,23 +315,6 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
 
 
-    /**
-     * 维活指令
-     */
-    private void keepDeviceLive() {
-        String orderJson = "{\"keep_wake\":0}";
-        NetApiManager.getInstance().setStauteDevice(mVideoUid, orderJson, new DeviceCtrlCallBack<Integer>() {
-            @Override
-            public void success(RequestStatus<Integer> requestStatus) {
-                Log.d("hsl444", "success: 维活成功");
-            }
-
-            @Override
-            public void fail(long l, String s) {
-
-            }
-        });
-    }
 
     public int linkCount = 0;
     private boolean isLinkSuccess = false;
@@ -447,6 +430,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             context.setFullScreen();
             if(mFunVideoView.getVisibility()!=View.VISIBLE)
             mFunVideoView.setVisibility(View.VISIBLE);
+            videoPlayView.setIsOpenAudio(false);
             if(time.getVisibility()!=View.GONE)
             time.setVisibility(View.GONE);
             isPlaying = true;
