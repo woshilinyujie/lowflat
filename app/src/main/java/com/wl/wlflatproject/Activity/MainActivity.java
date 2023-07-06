@@ -3,10 +3,13 @@ package com.wl.wlflatproject.Activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.SurfaceTexture;
 import android.hardware.usb.UsbDevice;
 import android.media.MediaPlayer;
@@ -17,8 +20,10 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -64,6 +69,8 @@ import com.wl.wlflatproject.Bean.StateBean;
 import com.wl.wlflatproject.Bean.UpdataJsonBean;
 import com.wl.wlflatproject.Bean.UpdateAppBean;
 import com.wl.wlflatproject.Bean.WeatherBean;
+import com.wl.wlflatproject.IdInterface;
+import com.wl.wlflatproject.MService.IdService;
 import com.wl.wlflatproject.MUtils.CMDUtils;
 import com.wl.wlflatproject.MUtils.DateUtils;
 import com.wl.wlflatproject.MUtils.DpUtils;
@@ -391,6 +398,8 @@ public class MainActivity extends AppCompatActivity {
         intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(receiver, intentFilter);
+        final Intent intent = new Intent(this, IdService.class);
+        bindService(intent, con, Service.BIND_AUTO_CREATE);
         codeBt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -768,6 +777,11 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                                 case 13://唯一id1
                                     id = split[1];
+                                    try {
+                                        idService.setId(id);
+                                    } catch (RemoteException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     codeDialog = new CodeDialog(MainActivity.this, R.style.ActionSheetDialogStyle, id);
                                     bean.setDevId(id);
                                     setMq();
@@ -1212,6 +1226,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mediaplayer.stop();
         mediaplayer.release();
+        unbindService(con);
         super.onDestroy();
     }
 
@@ -1984,4 +1999,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
     }
+
+
+
+    private IdInterface idService;
+    private ServiceConnection con = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            idService = IdInterface.Stub.asInterface(iBinder);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
 }
