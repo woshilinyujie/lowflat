@@ -335,7 +335,7 @@ public class SettingActivity1 extends AppCompatActivity {
                 });
                 break;
             case R.id.entry_door://入户即关
-                boolean status = QtimesServiceManager.instance().getWishesStatus();
+                boolean status = QtimesServiceManager.instance().getWishesStatus(false);
                 if (normalDialog == null)
                     normalDialog = new NormalDialog(this, R.style.mDialog);
                 normalDialog.show();

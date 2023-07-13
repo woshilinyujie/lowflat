@@ -84,6 +84,7 @@ import com.wl.wlflatproject.MUtils.VersionUtils;
 import com.wl.wlflatproject.MUtils.YmodleUtils;
 import com.wl.wlflatproject.MView.CodeDialog;
 import com.wl.wlflatproject.MView.NormalDialog;
+import com.wl.wlflatproject.MView.PasswardDialog;
 import com.wl.wlflatproject.MView.SimpleUVCCameraTextureView;
 import com.wl.wlflatproject.MView.WaitDialogTime;
 import com.wl.wlflatproject.Presenter.WJAPlayPresenter;
@@ -103,7 +104,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -331,9 +334,10 @@ public class MainActivity extends AppCompatActivity {
     private USBMonitor mUSBMonitor;
     private boolean isPlaying = false;
     private UVCCamera camera;
-    private List<UsbDevice> deviceList;
+    private HashMap<Integer,UsbDevice> deviceList;
     private MediaPlayer mediaplayer;
     private List<DeviceFilter> filter;
+    private PasswardDialog passwardDialog;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -356,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         mUSBMonitor.register();
         filter = DeviceFilter.getDeviceFilters(this,
                 com.serenegiant.uvccamera.R.xml.device_filter);
-        deviceList = mUSBMonitor.getDeviceList(filter.get(0));
+        deviceList = QtimesServiceManager.getCameraList(MainActivity.this, QtimesServiceManager.DoorEyeCamera);
         if (deviceList.size() < 0) {
             Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
         }
@@ -454,18 +458,33 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         switch (view.getId()) {
             case R.id.setting:
-                Intent intent = new Intent(MainActivity.this, SettingActivity1.class);
-                intent.putExtra("openDegree", openDegree);
-                intent.putExtra("openDoorWaitTime", openDoorWaitTime);
-                intent.putExtra("openDoorSpeed", openDoorSpeed);
-                intent.putExtra("closeDoorSpeed", closeDoorSpeed);
-                intent.putExtra("leftDegreeRepair", leftDegreeRepair);
-                intent.putExtra("rightDegreeRepair", rightDegreeRepair);
-                intent.putExtra("closePower", closePower);
-                intent.putExtra("openDegreeRepair", openDegreeRepair);
-                intent.putExtra("level", level);
-                intent.putExtra("isOPenClamp", isOPenClamp);
-                startActivity(intent);
+                if(passwardDialog==null){
+                    passwardDialog=new PasswardDialog(this);
+                }
+                passwardDialog.show();
+                passwardDialog.setEdit("");
+                passwardDialog.setListener(new PasswardDialog.OnResultListener() {
+                    @Override
+                    public void setOnResultListener(String password) {
+                        if(password.equals("605268")){
+                            Intent intent = new Intent(MainActivity.this, SettingActivity1.class);
+                            intent.putExtra("openDegree", openDegree);
+                            intent.putExtra("openDoorWaitTime", openDoorWaitTime);
+                            intent.putExtra("openDoorSpeed", openDoorSpeed);
+                            intent.putExtra("closeDoorSpeed", closeDoorSpeed);
+                            intent.putExtra("leftDegreeRepair", leftDegreeRepair);
+                            intent.putExtra("rightDegreeRepair", rightDegreeRepair);
+                            intent.putExtra("closePower", closePower);
+                            intent.putExtra("openDegreeRepair", openDegreeRepair);
+                            intent.putExtra("level", level);
+                            intent.putExtra("isOPenClamp", isOPenClamp);
+                            startActivity(intent);
+                        }else{
+                            Toast.makeText(MainActivity.this,"密码错误",Toast.LENGTH_SHORT).show();
+                        }
+                        passwardDialog.dismiss();
+                    }
+                });
                 break;
             case R.id.swtich:
                 if (RbMqUtils.MQIP.equals("rmq.wonlycloud.com")) {
@@ -509,8 +528,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.video_iv:
                 if (!isPlaying) {
                     //打开视频
-                    if(deviceList.size()!=2){
-                        deviceList = mUSBMonitor.getDeviceList(filter.get(0));
+                    if(deviceList.size()==0){
+                        deviceList = QtimesServiceManager.getCameraList(MainActivity.this, QtimesServiceManager.DoorEyeCamera);
                     }
                     if (!isFastClick()) {
                         Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
@@ -522,11 +541,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 60000);
-                    if(deviceList.size()>1){
-                        mUSBMonitor.requestPermission(deviceList.get(1));
-                    }else{
-                        mUSBMonitor.requestPermission(deviceList.get(0));
-                    }
+                    Set<Integer> set = deviceList.keySet();
+                    set.iterator().next();
+                    mUSBMonitor.requestPermission(deviceList.get( set.iterator().next()));
                     handler.sendEmptyMessageDelayed(13, 500);
                 } else {
                     releaseCamera();
@@ -881,11 +898,9 @@ public class MainActivity extends AppCompatActivity {
                                 if (!isFastClick()) {
                                     return;
                                 }
-                                if(deviceList.size()>1){
-                                    mUSBMonitor.requestPermission(deviceList.get(1));
-                                }else{
-                                    mUSBMonitor.requestPermission(deviceList.get(0));
-                                }
+                                Set<Integer> set = deviceList.keySet();
+                                set.iterator().next();
+                                mUSBMonitor.requestPermission(deviceList.get( set.iterator().next()));
                             }
 
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
@@ -917,11 +932,9 @@ public class MainActivity extends AppCompatActivity {
                                             if (!isFastClick()) {
                                                 return;
                                             }
-                                            if(deviceList.size()>1){
-                                                mUSBMonitor.requestPermission(deviceList.get(1));
-                                            }else{
-                                                mUSBMonitor.requestPermission(deviceList.get(0));
-                                            }
+                                            Set<Integer> set = deviceList.keySet();
+                                            set.iterator().next();
+                                            mUSBMonitor.requestPermission(deviceList.get( set.iterator().next()));
                                         }
                                     }
                                     break;

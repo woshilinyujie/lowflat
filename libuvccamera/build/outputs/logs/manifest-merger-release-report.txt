@@ -1,12 +1,12 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
+ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-30:12
 	package
 		ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:25:5-40
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
@@ -22,16 +22,16 @@ INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:24:1-33:12
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 uses-sdk
-ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:29:5-31:41
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:29:5-31:41
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:29:5-31:41
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:29:5-31:41
-INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:29:5-31:41
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
+INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 	android:targetSdkVersion
-		ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:31:9-38
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
+		ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml:30:9-35
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
+		ADDED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
 		INJECTED from E:\lowflat\libuvccamera\src\main\AndroidManifest.xml
