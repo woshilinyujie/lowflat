@@ -26,7 +26,7 @@ public class CodeDialog extends Dialog {
         View mView = LayoutInflater.from(getContext()).inflate(R.layout.code_dialog_layout, null);
         ImageView iv=mView.findViewById(R.id.dialog_code_iv);
         if(towCode==null){
-            towCode = DpUtils.getTowCode(context, "WL025S1-W-L"+id);
+            towCode = DpUtils.getTowCode(context, "WL025S1-W-L-"+id);
 //            towCode = DpUtils.getTowCode(context, "WL025S1-"+ DeviceUtils.getSerialNumber(context));
             iv.setImageBitmap(towCode);
             setContentView(mView);

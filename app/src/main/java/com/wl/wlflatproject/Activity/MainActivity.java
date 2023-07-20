@@ -458,15 +458,15 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         switch (view.getId()) {
             case R.id.setting:
-                if(passwardDialog==null){
-                    passwardDialog=new PasswardDialog(this);
-                }
-                passwardDialog.show();
-                passwardDialog.setEdit("");
-                passwardDialog.setListener(new PasswardDialog.OnResultListener() {
-                    @Override
-                    public void setOnResultListener(String password) {
-                        if(password.equals("605268")){
+//                if(passwardDialog==null){
+//                    passwardDialog=new PasswardDialog(this);
+//                }
+//                passwardDialog.show();
+//                passwardDialog.setEdit("");
+//                passwardDialog.setListener(new PasswardDialog.OnResultListener() {
+//                    @Override
+//                    public void setOnResultListener(String password) {
+//                        if(password.equals("605268")){
                             Intent intent = new Intent(MainActivity.this, SettingActivity1.class);
                             intent.putExtra("openDegree", openDegree);
                             intent.putExtra("openDoorWaitTime", openDoorWaitTime);
@@ -479,12 +479,12 @@ public class MainActivity extends AppCompatActivity {
                             intent.putExtra("level", level);
                             intent.putExtra("isOPenClamp", isOPenClamp);
                             startActivity(intent);
-                        }else{
-                            Toast.makeText(MainActivity.this,"密码错误",Toast.LENGTH_SHORT).show();
-                        }
-                        passwardDialog.dismiss();
-                    }
-                });
+//                        }else{
+//                            Toast.makeText(MainActivity.this,"密码错误",Toast.LENGTH_SHORT).show();
+//                        }
+//                        passwardDialog.dismiss();
+//                    }
+//                });
                 break;
             case R.id.swtich:
                 if (RbMqUtils.MQIP.equals("rmq.wonlycloud.com")) {
@@ -1585,7 +1585,7 @@ public class MainActivity extends AppCompatActivity {
         bodyBean.setVendor_name("general");
         bodyBean.setPlatform("android");
 
-        bodyBean.setEndpoint_type("WL025S1-Sign-W-H");
+        bodyBean.setEndpoint_type("WL025S1-W-L");
 
         bodyBean.setCurrent_version(version + "");
 
