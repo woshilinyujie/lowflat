@@ -288,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 14:
                     requestPermission();
-                    sendEmptyMessageDelayed(14, 3600 * 1000);
                     break;
                 case 15:
                     serialPort.flag = true;
@@ -301,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                     mWorkerThreadID = handler.getLooper().getThread().getId();
                     initSerialPort();
                     releaseCamera();
+                    wjaPlayPresenter.getSystemTime();
                     break;
             }
         }
@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
         handler.removeMessages(4);
         if (dialogTime == null)
             dialogTime = new WaitDialogTime(this, android.R.style.Theme_Translucent_NoTitleBar);
-        requestPermission();
+        handler.sendEmptyMessageDelayed(14,3000);
         Log.e("获得Mac地址", id + "");
         rbmq = new RbMqUtils();
         bean.setAck(0);
@@ -431,9 +431,7 @@ public class MainActivity extends AppCompatActivity {
         handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
         handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         handler.sendEmptyMessage(4);
-        handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
         handler.sendEmptyMessageDelayed(17, 1000);
-        wjaPlayPresenter.getSystemTime();
         if (deviceList.size() < 0) {
             Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
         }
@@ -916,11 +914,13 @@ public class MainActivity extends AppCompatActivity {
                             switch (split1[0]) {
                                 case "0"://表示前板检测到遮挡  门外
                                     if (split1[1].equals("0")) {//人离开
+                                        handler.removeMessages(1);
                                         handler.sendEmptyMessageDelayed(1, 60000);
                                         Log.e("" +
                                                 "", "..");
                                     } else {//人靠近
                                         handler.removeMessages(1);
+                                        handler.sendEmptyMessageDelayed(1, 120000);
                                         Log.e("检测有人", "..");
                                         writeFile(file, 2 + "");//打开屏幕
                                         handler.removeMessages(3);
