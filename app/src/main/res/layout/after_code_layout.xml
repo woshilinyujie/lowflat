@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="240dp"
-    android:layout_height="330dp"
+    android:layout_height="280dp"
     android:background="#253443"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -31,33 +31,11 @@
         android:layout_height="wrap_content"/>
 
 
-    <TextView
-        android:layout_marginTop="15dp"
-        android:id="@+id/tv3"
-        android:textColor="@color/c_f5a623"
-        android:text="联系电话"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@+id/tv2"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <TextView
-        android:textStyle="bold"
-        android:layout_marginTop="5dp"
-        android:textColor="@color/white"
-        android:text="18805892286"
-        android:textSize="17sp"
-        app:layout_constraintTop_toBottomOf="@+id/tv3"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
 
     <ImageView
         android:background="@drawable/after_sales"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="70dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
