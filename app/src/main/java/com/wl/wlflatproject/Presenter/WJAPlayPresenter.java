@@ -66,6 +66,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private ImageView bg;
     private ConstraintLayout mFunVideoView;
     private TextView time;
+    private ImageView codeBt;
     private WaitDialogTime1 mWaitDlg1;
 //        private String baseUrl="http://ums-test.wonlycloud.com:10301/";
     private String baseUrl="https://ums-ag.wonlycloud.com:10301/";
@@ -83,11 +84,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             String mVideoUid,
             Application application,
             MainActivity context,
-            ImageView bg, ConstraintLayout mFunVideoView, TextView time
+            ImageView bg, ConstraintLayout mFunVideoView, TextView time,ImageView codeBt
     ) {
         this.bg=bg;
         this.mFunVideoView=mFunVideoView;
         this.time=time;
+        this.codeBt=codeBt;
         this.context = context;
         this.mDeviceUid = mDeviceUid;
         this.mVideoUid = mVideoUid;
@@ -154,7 +156,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
-                mWaitDlg1.setWaitText("访问获取token成功");
+//                mWaitDlg1.setWaitText("访问获取token成功");
                 String s = response.body();
                 Gson gson = new Gson();
                 WJATokenBean wjaTokenBean = gson.fromJson(s, WJATokenBean.class);
@@ -165,11 +167,11 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                 }else{
                     WJANetCtrl.getInstance().setToken(wjaTokenBean.getData().getToken());
                     if (wjaTokenBean.getData().getOnlineStatus() == 1) {
-                        mWaitDlg1.setWaitText("摄像头在线 开始link");
+//                        mWaitDlg1.setWaitText("摄像头在线 开始link");
                         setResolutionRatio(wjaTokenBean.getData().getToken());//
                         startLink(true);
                     } else {
-                        mWaitDlg1.setWaitText("摄像头不在线 开始唤醒");
+//                        mWaitDlg1.setWaitText("摄像头不在线 开始唤醒");
                         wakeUpCamera();
                     }
                 }
@@ -211,7 +213,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
                     @Override
                     public void onOnlineStatusNotify(String deviceId, String status) {
-                        mWaitDlg1.setWaitText("唤醒成功开始link");
+//                        mWaitDlg1.setWaitText("唤醒成功开始link");
                         if ("1".equals(status) && deviceId.equals(mVideoUid)) {
                             // 开始维活
 //                            handler.sendEmptyMessageDelayed(0, 5000);
@@ -329,7 +331,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                 new ValueCallBack<LinkInfo>() {
                     @Override
                     public void success(LinkInfo linkInfo) {
-                        mWaitDlg1.setWaitText("link成功 开始拉流");
+//                        mWaitDlg1.setWaitText("link成功 开始拉流");
                         isLinkSuccess = true;
                         mLinkInfo = linkInfo;
                         startMonitor();
@@ -364,7 +366,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                             NetApiManager.getInstance().reConMQ();
                             Log.d("hsl666", "initAVLib: ---->万佳安初始化");
                         }
-                        mWaitDlg1.setWaitText("link失败 link次数："+linkCount+"失败码："+p0);
+//                        mWaitDlg1.setWaitText("link失败 link次数："+linkCount+"失败码："+p0);
                         if (linkCount > 5) {
                             Toast.makeText(context, errorStr, Toast.LENGTH_SHORT).show();
                             isLinkSuccess = false;
@@ -411,6 +413,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             mFunVideoView.setVisibility(View.GONE);
             bg.setBackgroundResource(R.drawable.bg1);
             time.setVisibility(View.VISIBLE);
+            codeBt.setVisibility(View.VISIBLE);
             context.setScreen();
         }
         stopMonitor();
@@ -431,8 +434,10 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             if(mFunVideoView.getVisibility()!=View.VISIBLE)
             mFunVideoView.setVisibility(View.VISIBLE);
             videoPlayView.setIsOpenAudio(false);
-            if(time.getVisibility()!=View.GONE)
-            time.setVisibility(View.GONE);
+            if(time.getVisibility()!=View.GONE){
+                time.setVisibility(View.GONE);
+                codeBt.setVisibility(View.GONE);
+            }
             isPlaying = true;
             isPlaying1=true;
         }

@@ -901,7 +901,8 @@ public class MainActivity extends AppCompatActivity {
                             switch (split1[0]) {
                                 case "0"://表示前板检测到遮挡  门外
                                     if (split1[1].equals("0")) {//人离开
-                                        handler.sendEmptyMessageDelayed(1, 20000);
+                                        handler.removeMessages(1);
+                                        handler.sendEmptyMessageDelayed(1, 60000);
                                         Log.e("" +
                                                 "", "..");
                                     } else {//人靠近
@@ -915,7 +916,7 @@ public class MainActivity extends AppCompatActivity {
                                         } else {
                                             if (!wjaPlayPresenter.isPlaying) {
                                                 handler.removeMessages(1);
-                                                handler.sendEmptyMessageDelayed(1, 60000);
+                                                handler.sendEmptyMessageDelayed(1, 120000);
                                                 wjaPlayPresenter.setScreen(true);
                                                 wjaPlayPresenter.queryWAJToken(false);
                                             }
@@ -947,7 +948,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (split.length > 1) {
                                     if(isFirstSetScreen){
                                         initAVLib(MainActivity.this);
-                                        wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time);
+                                        wjaPlayPresenter.initCamera(videoPlayView, id, split[1], getApplication(), MainActivity.this, bg, funView, time,codeBt);
                                     }else{
                                         wjaPlayPresenter.setDevid(id);
                                         wjaPlayPresenter.setVideoid(split[1]);
