@@ -20,6 +20,7 @@ import com.wl.wlflatproject.Bean.SetMsgBean;
 import com.wl.wlflatproject.MUtils.CMDUtils;
 import com.wl.wlflatproject.MUtils.SPUtil;
 import com.wl.wlflatproject.MUtils.SerialPortUtil;
+import com.wl.wlflatproject.MView.AfterSalesDialog;
 import com.wl.wlflatproject.MView.NormalDialog;
 import com.wl.wlflatproject.MView.SetDialog;
 import com.wl.wlflatproject.MView.UpDateDialogTime;
@@ -70,7 +71,7 @@ public class SettingActivity1 extends AppCompatActivity {
     private UpDateDialogTime upDateDialogTime;
     private NormalDialog normalDialog;
     private Intent setIntent;
-
+    private AfterSalesDialog afterSalesDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,7 +166,7 @@ public class SettingActivity1 extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.reboot,R.id.update,R.id.door_select, R.id.entry_door, R.id.experience, R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
+    @OnClick({R.id.after_sales,R.id.reboot,R.id.update,R.id.door_select, R.id.entry_door, R.id.experience, R.id.back, R.id.wait_time, R.id.setting, R.id.num_rl, R.id.activation, R.id.system, R.id.engineering_mode, R.id.restart, R.id.anti_pinch})
     public void onViewClicked(View view) {
         if (setDialog == null) {
             setDialog = new SetDialog(SettingActivity1.this, R.style.mDialog);
@@ -174,6 +175,11 @@ public class SettingActivity1 extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.back:
                 finish();
+                break;
+            case R.id.after_sales:
+                if (afterSalesDialog == null)
+                    afterSalesDialog = new AfterSalesDialog(SettingActivity1.this);
+                afterSalesDialog.show();
                 break;
             case R.id.reboot:
                 Intent reboot = new Intent(Intent.ACTION_REBOOT);
