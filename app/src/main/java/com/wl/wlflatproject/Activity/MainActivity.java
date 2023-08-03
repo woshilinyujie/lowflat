@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
             params.width = height;
             params.height = width;
             videoPlayView.setLayoutParams(params);
-            videoPlayView.setRotation(-90f);
+            videoPlayView.setRotation(-270f);
         }, 1000);
     }
 
@@ -1500,7 +1500,7 @@ public class MainActivity extends AppCompatActivity {
         rl.setLayoutParams(layoutParams);
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         funView.setLayoutParams(layoutParams1);
-        videoPlayView.setScaleX(1f);
+        videoPlayView.setScaleX(-1f);
         videoPlayView.setScaleY(-1f);
         isFull = true;
     }
@@ -1512,7 +1512,7 @@ public class MainActivity extends AppCompatActivity {
         layoutParams1.leftMargin = screenWidth / 4;
         rl.setLayoutParams(layoutParams);
         funView.setLayoutParams(layoutParams1);
-        videoPlayView.setScaleX(0.5f);
+        videoPlayView.setScaleX(-0.5f);
         videoPlayView.setScaleY(-0.5f);
 
 

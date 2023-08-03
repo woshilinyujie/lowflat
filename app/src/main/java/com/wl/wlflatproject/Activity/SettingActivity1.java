@@ -180,6 +180,7 @@ public class SettingActivity1 extends AppCompatActivity {
                 if (afterSalesDialog == null)
                     afterSalesDialog = new AfterSalesDialog(SettingActivity1.this);
                 afterSalesDialog.show();
+                break;
             case R.id.reboot:
                 Intent reboot = new Intent(Intent.ACTION_REBOOT);
                 reboot.putExtra("nowait", 1);

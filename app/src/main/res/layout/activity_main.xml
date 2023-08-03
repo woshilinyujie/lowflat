@@ -32,6 +32,7 @@
 
             <com.wl.wlflatproject.MView.SimpleUVCCameraTextureView
                 android:scaleY="-1.0"
+                android:scaleX="-1.0"
                 android:id="@+id/video_play_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
