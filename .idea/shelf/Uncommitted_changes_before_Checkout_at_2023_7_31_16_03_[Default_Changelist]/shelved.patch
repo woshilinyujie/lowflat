@@ -1,0 +1,54 @@
+Index: libuvccamera/build/intermediates/incremental/packageReleaseResources/compile-file-map.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Fri Jul 07 18:08:48 CST 2023\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\layout\\\\listitem_device.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\release\\\\layout\\\\listitem_device.xml\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\xml\\\\device_filter.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\release\\\\xml\\\\device_filter.xml\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\layout\\\\dialog_camera.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\release\\\\layout\\\\dialog_camera.xml\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>GBK
+===================================================================
+--- libuvccamera/build/intermediates/incremental/packageReleaseResources/compile-file-map.properties	(revision 9aed9fec2677d1db581c4c53265b14f27d79a0a8)
++++ libuvccamera/build/intermediates/incremental/packageReleaseResources/compile-file-map.properties	(date 1690768967208)
+@@ -1,4 +1,4 @@
+-#Fri Jul 07 18:08:48 CST 2023
++#Mon Jul 31 10:02:47 CST 2023
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\layout\\listitem_device.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\release\\layout\\listitem_device.xml
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\xml\\device_filter.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\release\\xml\\device_filter.xml
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\layout\\dialog_camera.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\release\\layout\\dialog_camera.xml
+Index: libuvccamera/build/intermediates/incremental/packageDebugResources/compile-file-map.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Fri Jul 07 15:07:24 CST 2023\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\layout\\\\listitem_device.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\debug\\\\layout\\\\listitem_device.xml\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\xml\\\\device_filter.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\debug\\\\xml\\\\device_filter.xml\r\nE\\:\\\\lowflat\\\\libuvccamera\\\\src\\\\main\\\\res\\\\layout\\\\dialog_camera.xml=E\\:\\\\lowflat\\\\libuvccamera\\\\build\\\\intermediates\\\\packaged_res\\\\debug\\\\layout\\\\dialog_camera.xml\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>GBK
+===================================================================
+--- libuvccamera/build/intermediates/incremental/packageDebugResources/compile-file-map.properties	(revision 9aed9fec2677d1db581c4c53265b14f27d79a0a8)
++++ libuvccamera/build/intermediates/incremental/packageDebugResources/compile-file-map.properties	(date 1690769009015)
+@@ -1,4 +1,4 @@
+-#Fri Jul 07 15:07:24 CST 2023
++#Mon Jul 31 10:03:29 CST 2023
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\layout\\listitem_device.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\debug\\layout\\listitem_device.xml
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\xml\\device_filter.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\debug\\xml\\device_filter.xml
+ E\:\\lowflat\\libuvccamera\\src\\main\\res\\layout\\dialog_camera.xml=E\:\\lowflat\\libuvccamera\\build\\intermediates\\packaged_res\\debug\\layout\\dialog_camera.xml
+diff --git libuvccamera/build/intermediates/packaged_res/debug/values-ja/values-ja.xml libuvccamera/build/intermediates/packaged_res/debug/values-ja/values-ja.xml
+diff --git libuvccamera/build/intermediates/packaged_res/debug/values/values.xml libuvccamera/build/intermediates/packaged_res/debug/values/values.xml
+diff --git libuvccamera/build/intermediates/incremental/packageDebugResources/merger.xml libuvccamera/build/intermediates/incremental/packageDebugResources/merger.xml
+diff --git libuvccamera/build/intermediates/incremental/packageReleaseResources/merged.dir/values-ja/values-ja.xml libuvccamera/build/intermediates/incremental/packageReleaseResources/merged.dir/values-ja/values-ja.xml
+diff --git libuvccamera/build/intermediates/incremental/packageReleaseResources/merged.dir/values/values.xml libuvccamera/build/intermediates/incremental/packageReleaseResources/merged.dir/values/values.xml
+diff --git libuvccamera/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml libuvccamera/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+diff --git libuvccamera/build/intermediates/packaged_res/release/values-ja/values-ja.xml libuvccamera/build/intermediates/packaged_res/release/values-ja/values-ja.xml
+diff --git libuvccamera/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml libuvccamera/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+diff --git libuvccamera/build/intermediates/packaged_res/release/values/values.xml libuvccamera/build/intermediates/packaged_res/release/values/values.xml
+diff --git libuvccamera/build/intermediates/incremental/packageReleaseResources/merger.xml libuvccamera/build/intermediates/incremental/packageReleaseResources/merger.xml
+diff --git libuvccamera/build/generated/source/buildConfig/release/com/serenegiant/uvccamera/BuildConfig.java libuvccamera/build/generated/source/buildConfig/release/com/serenegiant/uvccamera/BuildConfig.java
+diff --git libuvccamera/build/generated/source/buildConfig/debug/com/serenegiant/uvccamera/BuildConfig.java libuvccamera/build/generated/source/buildConfig/debug/com/serenegiant/uvccamera/BuildConfig.java
+diff --git libuvccamera/build/intermediates/incremental/packageDebugResources/merged.dir/values-ja/values-ja.xml libuvccamera/build/intermediates/incremental/packageDebugResources/merged.dir/values-ja/values-ja.xml
+diff --git libuvccamera/build/intermediates/incremental/packageDebugResources/merged.dir/values/values.xml libuvccamera/build/intermediates/incremental/packageDebugResources/merged.dir/values/values.xml
+diff --git libuvccamera/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml libuvccamera/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+diff --git libuvccamera/build/intermediates/library_manifest/release/AndroidManifest.xml libuvccamera/build/intermediates/library_manifest/release/AndroidManifest.xml
+diff --git libuvccamera/build/intermediates/library_manifest/debug/AndroidManifest.xml libuvccamera/build/intermediates/library_manifest/debug/AndroidManifest.xml
+diff --git libuvccamera/build/intermediates/incremental/mergeReleaseShaders/merger.xml libuvccamera/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+diff --git libuvccamera/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml libuvccamera/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+diff --git libuvccamera/build/intermediates/incremental/mergeDebugShaders/merger.xml libuvccamera/build/intermediates/incremental/mergeDebugShaders/merger.xml
+diff --git libuvccamera/build/intermediates/incremental/packageReleaseAssets/merger.xml libuvccamera/build/intermediates/incremental/packageReleaseAssets/merger.xml
+diff --git libuvccamera/build/intermediates/incremental/packageDebugAssets/merger.xml libuvccamera/build/intermediates/incremental/packageDebugAssets/merger.xml
+diff --git libuvccamera/build/outputs/logs/manifest-merger-release-report.txt libuvccamera/build/outputs/logs/manifest-merger-release-report.txt
+diff --git libuvccamera/build/outputs/logs/manifest-merger-debug-report.txt libuvccamera/build/outputs/logs/manifest-merger-debug-report.txt
