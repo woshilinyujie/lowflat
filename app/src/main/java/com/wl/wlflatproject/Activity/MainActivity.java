@@ -253,10 +253,6 @@ public class MainActivity extends AppCompatActivity {
                     requestPermission();
                     handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
                     break;
-                case 3:
-                    writeFile(file, 1 + "");
-                    handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
-                    break;
                 case 4:
                     String s = dateUtils.dateFormat6(System.currentTimeMillis());
                     time.setText(s);
@@ -429,7 +425,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
-        handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         handler.sendEmptyMessage(4);
         handler.sendEmptyMessageDelayed(6, 2000);
         handler.sendEmptyMessageDelayed(14, 3600 * 1000 * 2);
@@ -445,7 +440,6 @@ public class MainActivity extends AppCompatActivity {
             R.id.weather_ll, R.id.calendar_ll, R.id.video_iv})
     public void onViewClicked(View view) {
         handler.removeMessages(3);
-        handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         switch (view.getId()) {
             case R.id.setting:
                 Intent intent = new Intent(MainActivity.this, SettingActivity1.class);
@@ -868,16 +862,8 @@ public class MainActivity extends AppCompatActivity {
                                 QtimesServiceManager.instance().setLongOpenState(false);
                             }
                         } else if (data.contains("AT+CDWAKE=1")) {    //有人   但是不打开视频
-                            writeFile(file, 2 + "");//打开屏幕
-                            handler.removeMessages(3);
-                            handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
                         } else if (data.contains("AT+CDBELL=1")) {   //门铃
-                            handler.removeMessages(1);
-                            handler.sendEmptyMessageDelayed(1, 20000);
                             Log.e("有人按门铃", "..");
-                            writeFile(file, 2 + "");//打开屏幕
-                            handler.removeMessages(3);
-                            handler.sendEmptyMessageDelayed(3, 1000 * 30);
                             if (wjaPlayPresenter.getVideoId() == null) {
                                 Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                             } else {
@@ -901,16 +887,8 @@ public class MainActivity extends AppCompatActivity {
                             switch (split1[0]) {
                                 case "0"://表示前板检测到遮挡  门外
                                     if (split1[1].equals("0")) {//人离开
-                                        handler.removeMessages(1);
-                                        handler.sendEmptyMessageDelayed(1, 60000);
-                                        Log.e("" +
-                                                "", "..");
                                     } else {//人靠近
-                                        handler.removeMessages(1);
                                         Log.e("检测有人", "..");
-                                        writeFile(file, 2 + "");//打开屏幕
-                                        handler.removeMessages(3);
-                                        handler.sendEmptyMessageDelayed(3, 1000 * 30);
                                         if (wjaPlayPresenter.getVideoId() == null) {
                                             Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                                         } else {
