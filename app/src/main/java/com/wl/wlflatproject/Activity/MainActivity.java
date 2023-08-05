@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     if (isFull)
                         setScreen();
                     wjaPlayPresenter.destroyMonitor();
-                    Log.e("有人离开停止视频", "..");
+                    Log.e("监测---：","handle关闭视频");
                     break;
                 case 2:
                     if (mDownloadDialog != null) {
@@ -870,6 +870,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (!wjaPlayPresenter.isPlaying) {
                                     handler.removeMessages(1);
                                     handler.sendEmptyMessageDelayed(1, 60000);
+                                    Log.e("监测---：","门铃打开视频");
                                     wjaPlayPresenter.setScreen(true);
                                     wjaPlayPresenter.queryWAJToken(false);
                                 }
@@ -895,6 +896,7 @@ public class MainActivity extends AppCompatActivity {
                                             if (!wjaPlayPresenter.isPlaying) {
                                                 handler.removeMessages(1);
                                                 handler.sendEmptyMessageDelayed(1, 120000);
+                                                Log.e("监测---：","人体打开视频");
                                                 wjaPlayPresenter.setScreen(true);
                                                 wjaPlayPresenter.queryWAJToken(false);
                                             }

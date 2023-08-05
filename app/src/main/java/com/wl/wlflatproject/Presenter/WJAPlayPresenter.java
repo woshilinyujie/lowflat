@@ -73,6 +73,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            Log.e("监测---：","设置状态");
             isPlaying=false;
         }
     };
@@ -395,6 +396,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void stopMonitor() {
         if (isLinkSuccess) {
             videoPlayView.playVideoStop();
+            Log.e("监测---：","调用关闭视频API");
         }
     }
 
@@ -408,6 +410,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
      * 注销实时预览
      */
     public void destroyMonitor() {
+        Log.e("监测---：","调用关闭视频");
         isPlaying1=false;
         if (null != mFunVideoView) {
             mFunVideoView.setVisibility(View.GONE);
@@ -415,6 +418,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             time.setVisibility(View.VISIBLE);
             codeBt.setVisibility(View.VISIBLE);
             context.setScreen();
+            Log.e("监测---：","控件隐藏");
         }
         stopMonitor();
         if(!TextUtils.isEmpty(mVideoUid)) {
