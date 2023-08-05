@@ -140,6 +140,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
      * 获取万佳安TOKEN
      */
     public void queryWAJToken(boolean refreshToken) {
+        Log.e("监测---：","访问token接口");
         if (mWaitDlg1 == null)
             mWaitDlg1 = new WaitDialogTime1(context, android.R.style.Theme_Translucent_NoTitleBar);
         mWaitDlg1.show();
@@ -158,6 +159,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             @Override
             public void onSuccess(Response<String> response) {
 //                mWaitDlg1.setWaitText("访问获取token成功");
+                Log.e("监测---：","访问获取token成功");
                 String s = response.body();
                 Gson gson = new Gson();
                 WJATokenBean wjaTokenBean = gson.fromJson(s, WJATokenBean.class);
@@ -169,10 +171,11 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     WJANetCtrl.getInstance().setToken(wjaTokenBean.getData().getToken());
                     if (wjaTokenBean.getData().getOnlineStatus() == 1) {
 //                        mWaitDlg1.setWaitText("摄像头在线 开始link");
+                        Log.e("监测---：","摄像头在线 开始link");
                         setResolutionRatio(wjaTokenBean.getData().getToken());//
                         startLink(true);
                     } else {
-//                        mWaitDlg1.setWaitText("摄像头不在线 开始唤醒");
+                        Log.e("监测---：","摄像头在线 开始唤醒");
                         wakeUpCamera();
                     }
                 }
@@ -215,6 +218,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     @Override
                     public void onOnlineStatusNotify(String deviceId, String status) {
 //                        mWaitDlg1.setWaitText("唤醒成功开始link");
+                        Log.e("监测---：","唤醒成功开始link");
                         if ("1".equals(status) && deviceId.equals(mVideoUid)) {
                             // 开始维活
 //                            handler.sendEmptyMessageDelayed(0, 5000);
@@ -249,6 +253,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                         if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
                             mWaitDlg1.dismiss();
                         Toast.makeText(context, "摄像头唤醒失败", Toast.LENGTH_SHORT).show();
+                        Log.e("监测---：","摄像头唤醒失败");
                     }
                 });
             }
@@ -256,6 +261,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             @Override
             public void onError(Response<String> response) {
                 Toast.makeText(context, "唤醒接口调用失败", Toast.LENGTH_SHORT).show();
+                Log.e("监测---：","唤醒接口调用失败");
                 if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
                     mWaitDlg1.dismiss();
             }
@@ -332,10 +338,13 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                 new ValueCallBack<LinkInfo>() {
                     @Override
                     public void success(LinkInfo linkInfo) {
+                        Log.e("监测---：","link成功 开始拉流");
 //                        mWaitDlg1.setWaitText("link成功 开始拉流");
                         isLinkSuccess = true;
                         mLinkInfo = linkInfo;
                         startMonitor();
+                        context.handler.removeMessages(1);
+                        context.handler.sendEmptyMessageDelayed(1,120000);
                     }
 
                     @Override

@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
     private long lastClickTime;
     static String lcddisplay = "/sys/gpio_test_attr/lcd_power";
     File file = new File(lcddisplay);
-    Handler handler = new Handler() {
+    public Handler handler = new Handler() {
         @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
         @Override
         public void handleMessage(Message msg) {
@@ -339,9 +339,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initData();
         initCalendar();
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
-        wl.acquire();
         hideBottomUIMenu();
         Sync();
     }
@@ -510,8 +507,6 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "设备初始化中，请稍后", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        handler.removeMessages(1);
-                        handler.sendEmptyMessageDelayed(1, 60000);
                         wjaPlayPresenter.setScreen(true);
                         wjaPlayPresenter.linkCount = 0;
                         wjaPlayPresenter.queryWAJToken(false);
@@ -868,8 +863,6 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                             } else {
                                 if (!wjaPlayPresenter.isPlaying) {
-                                    handler.removeMessages(1);
-                                    handler.sendEmptyMessageDelayed(1, 60000);
                                     Log.e("监测---：","门铃打开视频");
                                     wjaPlayPresenter.setScreen(true);
                                     wjaPlayPresenter.queryWAJToken(false);
@@ -894,8 +887,6 @@ public class MainActivity extends AppCompatActivity {
                                             Toast.makeText(MainActivity.this, "请检查摄像头是否配置wifi", Toast.LENGTH_SHORT).show();
                                         } else {
                                             if (!wjaPlayPresenter.isPlaying) {
-                                                handler.removeMessages(1);
-                                                handler.sendEmptyMessageDelayed(1, 120000);
                                                 Log.e("监测---：","人体打开视频");
                                                 wjaPlayPresenter.setScreen(true);
                                                 wjaPlayPresenter.queryWAJToken(false);
