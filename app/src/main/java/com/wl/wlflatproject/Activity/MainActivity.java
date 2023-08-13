@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
     private String mSecondCode = "";
     private String mThirdCode = "";
     private YmodleUtils ymodleUtils;
-    private ExecutorService threads;
+    public ExecutorService threads;
     private SerialPortUtil.DataListener dataListener;
     private YModem yModem;
     private File downLoadFile;
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        threads = Executors.newFixedThreadPool(3);
+        threads = Executors.newFixedThreadPool(5);
         wjaPlayPresenter = new WJAPlayPresenter();
         normalDialog = new NormalDialog(this, R.style.mDialog);
         int select = SPUtil.getInstance(this).getSettingParam("doorSelect", 0);

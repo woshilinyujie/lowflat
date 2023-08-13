@@ -68,13 +68,13 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     private TextView time;
     private ImageView codeBt;
     private WaitDialogTime1 mWaitDlg1;
-//        private String baseUrl="http://ums-test.wonlycloud.com:10301/";
-    private String baseUrl="https://ums-ag.wonlycloud.com:10301/";
+    //        private String baseUrl="http://ums-test.wonlycloud.com:10301/";
+    private String baseUrl = "https://ums-ag.wonlycloud.com:10301/";
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.e("监测---：","设置状态");
-            isPlaying=false;
+            Log.e("监测---：", "设置状态");
+            isPlaying = false;
         }
     };
 
@@ -85,12 +85,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             String mVideoUid,
             Application application,
             MainActivity context,
-            ImageView bg, ConstraintLayout mFunVideoView, TextView time,ImageView codeBt
+            ImageView bg, ConstraintLayout mFunVideoView, TextView time, ImageView codeBt
     ) {
-        this.bg=bg;
-        this.mFunVideoView=mFunVideoView;
-        this.time=time;
-        this.codeBt=codeBt;
+        this.bg = bg;
+        this.mFunVideoView = mFunVideoView;
+        this.time = time;
+        this.codeBt = codeBt;
         this.context = context;
         this.mDeviceUid = mDeviceUid;
         this.mVideoUid = mVideoUid;
@@ -140,7 +140,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
      * 获取万佳安TOKEN
      */
     public void queryWAJToken(boolean refreshToken) {
-        Log.e("监测---：","访问token接口");
+        Log.e("监测---：", "访问token接口");
         if (mWaitDlg1 == null)
             mWaitDlg1 = new WaitDialogTime1(context, android.R.style.Theme_Translucent_NoTitleBar);
         mWaitDlg1.show();
@@ -154,28 +154,28 @@ public class WJAPlayPresenter implements OnVideoViewListener,
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String path = baseUrl+"api/aigang/wanjiaan/getCameraPullFlowToken";
+        String path = baseUrl + "api/aigang/wanjiaan/getCameraPullFlowToken";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
 //                mWaitDlg1.setWaitText("访问获取token成功");
-                Log.e("监测---：","访问获取token成功");
+                Log.e("监测---：", "访问获取token成功");
                 String s = response.body();
                 Gson gson = new Gson();
                 WJATokenBean wjaTokenBean = gson.fromJson(s, WJATokenBean.class);
-                if(wjaTokenBean.getData()==null||wjaTokenBean.getData().getToken()==null){
-                    if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                if (wjaTokenBean.getData() == null || wjaTokenBean.getData().getToken() == null) {
+                    if (mWaitDlg1 != null && mWaitDlg1.isShowing())
                         mWaitDlg1.dismiss();
                     Toast.makeText(context, wjaTokenBean.getMsg(), Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     WJANetCtrl.getInstance().setToken(wjaTokenBean.getData().getToken());
                     if (wjaTokenBean.getData().getOnlineStatus() == 1) {
 //                        mWaitDlg1.setWaitText("摄像头在线 开始link");
-                        Log.e("监测---：","摄像头在线 开始link");
+                        Log.e("监测---：", "摄像头在线 开始link");
                         setResolutionRatio(wjaTokenBean.getData().getToken());//
                         startLink(true);
                     } else {
-                        Log.e("监测---：","摄像头在线 开始唤醒");
+                        Log.e("监测---：", "摄像头在线 开始唤醒");
                         wakeUpCamera();
                     }
                 }
@@ -184,7 +184,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             @Override
             public void onError(Response<String> response) {
                 Toast.makeText(context, "获取wja token接口失败", Toast.LENGTH_SHORT).show();
-                if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                if (mWaitDlg1 != null && mWaitDlg1.isShowing())
                     mWaitDlg1.dismiss();
             }
         });
@@ -201,7 +201,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-        String path = baseUrl+"api/aigang/wanjiaan/wakeUpCameraParameters";
+        String path = baseUrl + "api/aigang/wanjiaan/wakeUpCameraParameters";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -218,7 +218,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
                     @Override
                     public void onOnlineStatusNotify(String deviceId, String status) {
 //                        mWaitDlg1.setWaitText("唤醒成功开始link");
-                        Log.e("监测---：","唤醒成功开始link");
+                        Log.e("监测---：", "唤醒成功开始link");
                         if ("1".equals(status) && deviceId.equals(mVideoUid)) {
                             // 开始维活
 //                            handler.sendEmptyMessageDelayed(0, 5000);
@@ -250,10 +250,10 @@ public class WJAPlayPresenter implements OnVideoViewListener,
 
                     @Override
                     public void fail(long l, String s) {
-                        if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                        if (mWaitDlg1 != null && mWaitDlg1.isShowing())
                             mWaitDlg1.dismiss();
                         Toast.makeText(context, "摄像头唤醒失败", Toast.LENGTH_SHORT).show();
-                        Log.e("监测---：","摄像头唤醒失败");
+                        Log.e("监测---：", "摄像头唤醒失败");
                     }
                 });
             }
@@ -261,13 +261,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             @Override
             public void onError(Response<String> response) {
                 Toast.makeText(context, "唤醒接口调用失败", Toast.LENGTH_SHORT).show();
-                Log.e("监测---：","唤醒接口调用失败");
-                if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+                Log.e("监测---：", "唤醒接口调用失败");
+                if (mWaitDlg1 != null && mWaitDlg1.isShowing())
                     mWaitDlg1.dismiss();
             }
         });
     }
-
 
 
     //设置分辨率
@@ -283,7 +282,7 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             e.printStackTrace();
         }
 
-        String path = baseUrl+"api/aigang/wanjiaan/setVideoQualidy";
+        String path = baseUrl + "api/aigang/wanjiaan/setVideoQualidy";
         OkGo.<String>post(path).upJson(data.toString()).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -301,14 +300,12 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     }
 
 
-
-
     public void getSystemTime() {
         String path = "https://ums-ag.wonlycloud.com:10301/api/aigang/getTimeStamp";
         OkGo.<String>post(path).execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
-                TimeBean bean=GsonUtils.GsonToBean(response.body(), TimeBean.class);
+                TimeBean bean = GsonUtils.GsonToBean(response.body(), TimeBean.class);
                 SystemClock.setCurrentTimeMillis(bean.getData().getMillisecond());
             }
 
@@ -319,73 +316,83 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     }
 
 
-
-
-
-
-
-
     public int linkCount = 0;
     private boolean isLinkSuccess = false;
     private LinkInfo mLinkInfo;
 
     private void startLink(boolean isUpdateLink) {
-        linkCount++;
-        MediaControl.getInstance().getLinkHandler(
-                mVideoUid,
-                WJANetCtrl.getInstance().getWJAToken(),
-                isUpdateLink,
-                new ValueCallBack<LinkInfo>() {
-                    @Override
-                    public void success(LinkInfo linkInfo) {
-                        Log.e("监测---：","link成功 开始拉流");
+        context.threads.execute(new Runnable() {
+            @Override
+            public void run() {
+                linkCount++;
+                MediaControl.getInstance().getLinkHandler(
+                        mVideoUid,
+                        WJANetCtrl.getInstance().getWJAToken(),
+                        isUpdateLink,
+                        new ValueCallBack<LinkInfo>() {
+                            @Override
+                            public void success(LinkInfo linkInfo) {
+                                context.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.e("监测---：", "link成功 开始拉流");
 //                        mWaitDlg1.setWaitText("link成功 开始拉流");
-                        isLinkSuccess = true;
-                        mLinkInfo = linkInfo;
-                        startMonitor();
-                        context.handler.removeMessages(1);
-                        context.handler.sendEmptyMessageDelayed(1,120000);
-                    }
+                                        isLinkSuccess = true;
+                                        mLinkInfo = linkInfo;
+                                        startMonitor();
+                                        context.handler.removeMessages(1);
+                                        context.handler.sendEmptyMessageDelayed(1, 120000);
+                                    }
+                                });
+                            }
 
-                    @Override
-                    public void fail(long p0, String s) {
-                        isLinking = false;
-                        linkCount++;
-                        String errorStr = "";
-                        if (p0 == 0x3009) {
-                            errorStr = "授权失败";
-                        } else if (p0 == 0x3010) {
-                            errorStr = "无权限操作此设备";
-                            queryWAJToken(true);
-                        } else if (p0 == 0x3013) {
-                            errorStr = "TOKEN过期或无效";
-                            queryWAJToken(true);
-                        } else if (p0 == 0x2002) {
-                            errorStr = "P2P 穿透失败";
-                            startLink(true);
-                        } else if (p0 == 0x2008) {
-                            errorStr = "P2P错误";
-                            queryWAJToken(true);
-                        } else if (p0 == 0x2004) {
-                            errorStr = "Link失败";
-                            wakeUpCamera();
-                        }else if (p0 == 0x4001) {
-                            MediaControl.getInstance().setIsShowLog(true);
-                            MediaControl.getInstance().initialize(context);
-                            NetApiManager.getInstance().mqttDisconnect();
-                            NetApiManager.getInstance().reConMQ();
-                            Log.d("hsl666", "initAVLib: ---->万佳安初始化");
-                        }
+                            @Override
+                            public void fail(long p0, String s) {
+                                context.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.e("监测---：", p0 + "---" + s + "---拉流失败");
+                                        isLinking = false;
+                                        linkCount++;
+                                        String errorStr = "";
+                                        if (p0 == 0x3009) {
+                                            errorStr = "授权失败";
+                                        } else if (p0 == 0x3010) {
+                                            errorStr = "无权限操作此设备";
+                                            queryWAJToken(true);
+                                        } else if (p0 == 0x3013) {
+                                            errorStr = "TOKEN过期或无效";
+                                            queryWAJToken(true);
+                                        } else if (p0 == 0x2002) {
+                                            errorStr = "网络连接失败，请检查网络";
+                                            startLink(true);
+                                        } else if (p0 == 0x2008) {
+                                            errorStr = "P2P错误";
+                                            queryWAJToken(true);
+                                        } else if (p0 == 0x2004) {
+                                            errorStr = "Link失败";
+                                            wakeUpCamera();
+                                        } else if (p0 == 0x4001) {
+                                            MediaControl.getInstance().setIsShowLog(true);
+                                            MediaControl.getInstance().initialize(context);
+                                            NetApiManager.getInstance().mqttDisconnect();
+                                            NetApiManager.getInstance().reConMQ();
+                                            Log.d("hsl666", "initAVLib: ---->万佳安初始化");
+                                        }
 //                        mWaitDlg1.setWaitText("link失败 link次数："+linkCount+"失败码："+p0);
-                        if (linkCount > 5) {
-                            Toast.makeText(context, errorStr, Toast.LENGTH_SHORT).show();
-                            isLinkSuccess = false;
-                            //彻底失败
-                            if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
-                                mWaitDlg1.dismiss();
-                        }
-                    }
-                });
+                                        if (linkCount > 5) {
+                                            Toast.makeText(context, errorStr, Toast.LENGTH_SHORT).show();
+                                            isLinkSuccess = false;
+                                            //彻底失败
+                                            if (mWaitDlg1 != null && mWaitDlg1.isShowing())
+                                                mWaitDlg1.dismiss();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+            }
+        });
     }
 
     /**
@@ -405,54 +412,56 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void stopMonitor() {
         if (isLinkSuccess) {
             videoPlayView.playVideoStop();
-            Log.e("监测---：","调用关闭视频API");
+            Log.e("监测---：", "调用关闭视频API");
         }
     }
 
-    public void setDevid(String id){
-        mDeviceUid=id;
+    public void setDevid(String id) {
+        mDeviceUid = id;
     }
-    public void setVideoid(String id){
-        mVideoUid=id;
+
+    public void setVideoid(String id) {
+        mVideoUid = id;
     }
+
     /**
      * 注销实时预览
      */
     public void destroyMonitor() {
-        Log.e("监测---：","调用关闭视频");
-        isPlaying1=false;
+        Log.e("监测---：", "调用关闭视频");
+        isPlaying1 = false;
         if (null != mFunVideoView) {
             mFunVideoView.setVisibility(View.GONE);
             bg.setBackgroundResource(R.drawable.bg1);
             time.setVisibility(View.VISIBLE);
             codeBt.setVisibility(View.VISIBLE);
             context.setScreen();
-            Log.e("监测---：","控件隐藏");
+            Log.e("监测---：", "控件隐藏");
         }
         stopMonitor();
-        if(!TextUtils.isEmpty(mVideoUid)) {
+        if (!TextUtils.isEmpty(mVideoUid)) {
             MediaControl.getInstance().destroyLink(mVideoUid);
         }
-        handler.sendEmptyMessageDelayed(0,2000);
+        handler.sendEmptyMessageDelayed(0, 2000);
     }
 
     @Override
     public void onHideLoading() {
-        if(mWaitDlg1!=null&&mWaitDlg1.isShowing())
+        if (mWaitDlg1 != null && mWaitDlg1.isShowing())
             mWaitDlg1.dismiss();
-        if(isPlaying)
+        if (isPlaying)
             return;
-        if (!context.isFull){
+        if (!context.isFull) {
             context.setFullScreen();
-            if(mFunVideoView.getVisibility()!=View.VISIBLE)
-            mFunVideoView.setVisibility(View.VISIBLE);
+            if (mFunVideoView.getVisibility() != View.VISIBLE)
+                mFunVideoView.setVisibility(View.VISIBLE);
             videoPlayView.setIsOpenAudio(false);
-            if(time.getVisibility()!=View.GONE){
+            if (time.getVisibility() != View.GONE) {
                 time.setVisibility(View.GONE);
                 codeBt.setVisibility(View.GONE);
             }
             isPlaying = true;
-            isPlaying1=true;
+            isPlaying1 = true;
         }
     }
 
@@ -480,7 +489,9 @@ public class WJAPlayPresenter implements OnVideoViewListener,
     public void onCustomTouchEvent(MotionEvent motionEvent) {
 
     }
+
     private boolean fullScreen = false;
+
     public void setScreen(Boolean b) {
         this.fullScreen = b;
     }
