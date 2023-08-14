@@ -9,8 +9,8 @@ android {
 //        versionCode 21
 //        versionName "21"
 //
-        versionCode 45  //高
-        versionName "45.0"
+        versionCode 46  //高
+        versionName "46.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -23,7 +23,7 @@ android {
         }
         ndk {
             //设置支持的SO库架构
-            abiFilters 'armeabi-v7a' //, 'x86_64',
+            abiFilters 'arm64-v8a' //, 'x86_64',
         }
     }
 

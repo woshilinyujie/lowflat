@@ -989,29 +989,29 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                             }
                         } else if (data.contains("AT+REQUESTACK=1")) {
-                            unregisterReceiver(receiver);
-                            handler.removeMessages(0);
-                            threads.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(100);
-                                        if (yModem == null) {
-                                            yModem = new YModem();
-                                        }
-                                        yModem.send(downLoadFile, serialPort);
-                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_SUCCESS));
-                                    } catch (Exception e) {
-                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_ERRO));
-                                        Log.e("固件升级抛出错误---", e.toString());
-                                    } finally {
-                                        Log.e("固件升---", "结束");
-                                        handler.sendEmptyMessage(15);
-                                        handler.sendEmptyMessage(0);
-                                        registerReceiver(receiver, intentFilter);
-                                    }
-                                }
-                            });
+//                            unregisterReceiver(receiver);
+//                            handler.removeMessages(0);
+//                            threads.execute(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    try {
+//                                        Thread.sleep(100);
+//                                        if (yModem == null) {
+//                                            yModem = new YModem();
+//                                        }
+//                                        yModem.send(downLoadFile, serialPort);
+//                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_SUCCESS));
+//                                    } catch (Exception e) {
+//                                        EventBus.getDefault().post(new SetMsgBean(CMDUtils.UPDATE_ERRO));
+//                                        Log.e("固件升级抛出错误---", e.toString());
+//                                    } finally {
+//                                        Log.e("固件升---", "结束");
+//                                        handler.sendEmptyMessage(15);
+//                                        handler.sendEmptyMessage(0);
+//                                        registerReceiver(receiver, intentFilter);
+//                                    }
+//                                }
+//                            });
                         }
                     }
                 });
@@ -1107,7 +1107,7 @@ public class MainActivity extends AppCompatActivity {
                 serialPort.sendDate(("+ANGLEREPAIR:" + msg + "\r\n").getBytes());
                 break;
             case CMDUtils.BEGIN_UPDATE://后板升级校验
-                requestFileUpdate();
+//                requestFileUpdate();
                 break;
             case CMDUtils.WAIT_UPDATE://确认升级
                 downloadFile(fileUrl);
