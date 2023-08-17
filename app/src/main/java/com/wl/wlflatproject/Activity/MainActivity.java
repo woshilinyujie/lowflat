@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.PowerManager;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
@@ -219,10 +218,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isOPenClamp = false;//是否打开防夹
     private boolean watherClick = false;
     private long lastClickTime;
-    static String lcddisplay = "/sys/gpio_test_attr/lcd_power";
     private long mWorkerThreadID = -1;
-    File file = new File(lcddisplay);
-    private UVCCamera mUVCCamera;
     private Surface mPreviewSurface;
     Handler handler = new Handler() {
         @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
@@ -262,10 +258,6 @@ public class MainActivity extends AppCompatActivity {
                     OkGo.getInstance().cancelTag(MainActivity.this);
                     requestPermission();
                     handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
-                    break;
-                case 3:
-                    writeFile(file, 1 + "");
-                    handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
                     break;
                 case 4:
                     String s = dateUtils.dateFormat6(System.currentTimeMillis());
@@ -312,7 +304,6 @@ public class MainActivity extends AppCompatActivity {
     private AMapLocation mAMapLocation;
     private long mExitTime;
     public boolean isFull = false;
-    private PowerManager.WakeLock wl;
     private FileOutputStream fout;
     private PrintWriter printWriter;
     private DateUtils dateUtils;
@@ -347,9 +338,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initData();
         initCalendar();
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
-        wl.acquire();
         hideBottomUIMenu();
         Sync();
     }
@@ -364,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
         if (deviceList.size() < 0) {
             Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
         }
-        threads = Executors.newFixedThreadPool(3);
+        threads = Executors.newFixedThreadPool(4);
         wjaPlayPresenter = new WJAPlayPresenter();
         handler.sendEmptyMessageAtTime(0, 1000);
         doorSelectLl.setVisibility(View.VISIBLE);
@@ -429,7 +417,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         handler.sendEmptyMessageDelayed(2, 24 * 60 * 60 * 1000);
-        handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         handler.sendEmptyMessage(4);
         handler.sendEmptyMessageDelayed(17, 1000);
         if (deviceList.size() < 0) {
@@ -453,7 +440,6 @@ public class MainActivity extends AppCompatActivity {
             R.id.weather_ll, R.id.calendar_ll, R.id.video_iv})
     public void onViewClicked(View view) {
         handler.removeMessages(3);
-        handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
         switch (view.getId()) {
             case R.id.setting:
 //                if(passwardDialog==null){
@@ -538,7 +524,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     handler.removeMessages(1);
-                    handler.sendEmptyMessageDelayed(1, 60000);
+                    handler.sendEmptyMessageDelayed(1, 120000);
                     Set<Integer> set = deviceList.keySet();
                     set.iterator().next();
                     mUSBMonitor.requestPermission(deviceList.get( set.iterator().next()));
@@ -870,16 +856,10 @@ public class MainActivity extends AppCompatActivity {
                                 QtimesServiceManager.instance().setLongOpenState(false);
                             }
                         } else if (data.contains("AT+CDWAKE=1")) {    //有人   但是不打开视频
-                            writeFile(file, 2 + "");//打开屏幕
-                            handler.removeMessages(3);
-                            handler.sendEmptyMessageDelayed(3, 1000 * 3 * 60);
                         } else if (data.contains("AT+CDBELL=1")) {   //门铃
                             handler.removeMessages(1);
-                            handler.sendEmptyMessageDelayed(1, 60000);
+                            handler.sendEmptyMessageDelayed(1, 120000);
                             Log.e("有人按门铃", "..");
-                            writeFile(file, 2 + "");//打开屏幕
-                            handler.removeMessages(3);
-                            handler.sendEmptyMessageDelayed(3, 1000 * 30);
 
 
                             //门铃声音
@@ -914,17 +894,11 @@ public class MainActivity extends AppCompatActivity {
                             switch (split1[0]) {
                                 case "0"://表示前板检测到遮挡  门外
                                     if (split1[1].equals("0")) {//人离开
-                                        handler.removeMessages(1);
-                                        handler.sendEmptyMessageDelayed(1, 60000);
-                                        Log.e("" +
-                                                "", "..");
+
                                     } else {//人靠近
                                         handler.removeMessages(1);
                                         handler.sendEmptyMessageDelayed(1, 120000);
                                         Log.e("检测有人", "..");
-                                        writeFile(file, 2 + "");//打开屏幕
-                                        handler.removeMessages(3);
-                                        handler.sendEmptyMessageDelayed(3, 1000 * 30);
                                         if(deviceList.size()==0){
                                             return;
                                         }
@@ -1225,7 +1199,6 @@ public class MainActivity extends AppCompatActivity {
         releaseCamera();
         mLocationUtils.destroyLocationClient();
         unregisterReceiver(receiver);
-        wl.release();
         EventBus.getDefault().unregister(this);
         if (camera != null) {
             camera.stopPreview();
@@ -1966,21 +1939,26 @@ public class MainActivity extends AppCompatActivity {
         if (!isPlaying) {
             return;
         }
-        if (camera != null) {
-            try {
-                camera.setStatusCallback(null);
-                camera.setButtonCallback(null);
-                camera.close();
-                camera.destroy();
-                camera = null;
-            } catch (final Exception e) {
-                //
+        threads.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (camera != null) {
+                    try {
+                        camera.setStatusCallback(null);
+                        camera.setButtonCallback(null);
+                        camera.close();
+                        camera.destroy();
+                        camera = null;
+                    } catch (final Exception e) {
+                        //
+                    }
+                }
+                if (mPreviewSurface != null) {
+                    mPreviewSurface.release();
+                    mPreviewSurface = null;
+                }
             }
-        }
-        if (mPreviewSurface != null) {
-            mPreviewSurface.release();
-            mPreviewSurface = null;
-        }
+        });
         isPlaying = false;
         Log.e("测试", "---yingc");
     }
