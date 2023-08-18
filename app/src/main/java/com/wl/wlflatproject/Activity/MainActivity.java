@@ -348,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
     private void initData() {
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "MyTag");
+        wakeLock.setReferenceCounted(false);
         mediaplayer = MediaPlayer.create(this, R.raw.alarm);
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
         mUSBMonitor.register();
@@ -1912,7 +1913,7 @@ public class MainActivity extends AppCompatActivity {
                     setFullScreen();
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 120000);
-                    wakeLock.acquire(121000);
+                    wakeLock.acquire(135000);
                 }
             }, 0);
         }
@@ -1934,7 +1935,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
-        wakeLock.release();
+//        wakeLock.release();
         time.setVisibility(View.VISIBLE);
         codeBt.setVisibility(View.VISIBLE);
         videoPlayView.setVisibility(View.INVISIBLE);

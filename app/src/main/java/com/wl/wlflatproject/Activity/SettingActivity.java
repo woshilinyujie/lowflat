@@ -81,15 +81,12 @@ public class SettingActivity extends AppCompatActivity {
         switch (openDegree){
             case "72":
                 openDegreeTv.setText("小");
-                setDialog.show(3, "小");
                 break;
             case "77":
                 openDegreeTv.setText("适中");
-                setDialog.show(3, "适中");
                 break;
             case "82":
                 openDegreeTv.setText("大");
-                setDialog.show(3, "大");
                 break;
             case "87":
                 openDegreeTv.setText("最大");
@@ -194,6 +191,7 @@ public class SettingActivity extends AppCompatActivity {
                 break;
 
         }
+        setResult(300, getIntent());
     }
 
     @Override
@@ -210,7 +208,6 @@ public class SettingActivity extends AppCompatActivity {
         }
         switch (view.getId()) {
             case R.id.back:
-                setResult(300, getIntent());
                 finish();
                 break;
             case R.id.level:

@@ -375,7 +375,7 @@ public class SettingActivity1 extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 200) {
-        } else if (resultCode == 300) {
+        } else if (resultCode == 300&&data!=null) {
             setIntent = data;
         }
     }
