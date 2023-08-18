@@ -267,6 +267,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("句柄数量---", fdCount + "");
                     handler.sendEmptyMessageDelayed(4, 1000);
                     break;
+                case 3:
+                    wakeLock.release();
+                    break;
                 case 5:
                     serialPort.sendDate("+DATATOPAD\r\n".getBytes());
                     break;
@@ -1913,7 +1916,7 @@ public class MainActivity extends AppCompatActivity {
                     setFullScreen();
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 120000);
-                    wakeLock.acquire(135000);
+                    wakeLock.acquire();
                 }
             }, 0);
         }
@@ -1935,7 +1938,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
-//        wakeLock.release();
+        handler.removeMessages(3);
+        handler.sendEmptyMessageDelayed(3,15000);
         time.setVisibility(View.VISIBLE);
         codeBt.setVisibility(View.VISIBLE);
         videoPlayView.setVisibility(View.INVISIBLE);
