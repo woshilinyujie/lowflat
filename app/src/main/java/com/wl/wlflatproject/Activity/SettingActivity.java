@@ -77,7 +77,24 @@ public class SettingActivity extends AppCompatActivity {
         intent = getIntent();
         leftRepairDegreeTv.setText(intent.getStringExtra("leftDegreeRepair"));
         rightRepairDegreeTv.setText(intent.getStringExtra("rightDegreeRepair"));
-        openDegreeTv.setText(intent.getStringExtra("openDegree"));
+        String openDegree = intent.getStringExtra("openDegree");
+        switch (openDegree){
+            case "72":
+                openDegreeTv.setText("小");
+                setDialog.show(3, "小");
+                break;
+            case "77":
+                openDegreeTv.setText("适中");
+                setDialog.show(3, "适中");
+                break;
+            case "82":
+                openDegreeTv.setText("大");
+                setDialog.show(3, "大");
+                break;
+            case "87":
+                openDegreeTv.setText("最大");
+                break;
+        }
         openSpeedTv.setText(intent.getStringExtra("openDoorSpeed"));
         closeSpeedTv.setText(intent.getStringExtra("closeDoorSpeed"));
         closePowerTv.setText(intent.getStringExtra("closePower"));
@@ -118,8 +135,26 @@ public class SettingActivity extends AppCompatActivity {
                 break;
             case 3:
                 Toast.makeText(SettingActivity.this, "设置开门角度成功", Toast.LENGTH_SHORT).show();
-                if (!TextUtils.isEmpty(value))
-                    openDegreeTv.setText(value);
+                if (!TextUtils.isEmpty(value)){
+                    switch (value){
+                        case "72":
+                            value="72";
+                            openDegreeTv.setText("小");
+                            break;
+                        case "77":
+                            value="77";
+                            openDegreeTv.setText("适中");
+                            break;
+                        case "82":
+                            value="82";
+                            openDegreeTv.setText("大");
+                            break;
+                        case "87":
+                            value="87";
+                            openDegreeTv.setText("最大");
+                            break;
+                    }
+                }
                 getIntent().putExtra("openDegree", value);
                 break;
             case 5:
@@ -194,7 +229,21 @@ public class SettingActivity extends AppCompatActivity {
                 setDialog.show(2, intent.getStringExtra("rightDegreeRepair"));
                 break;
             case R.id.open_degree:
-                setDialog.show(3, intent.getStringExtra("openDegree"));
+                String openDegree = intent.getStringExtra("openDegree");
+                switch (openDegree){
+                    case "72":
+                        setDialog.show(3, "小");
+                        break;
+                    case "77":
+                        setDialog.show(3, "适中");
+                        break;
+                    case "82":
+                        setDialog.show(3, "大");
+                        break;
+                    case "87":
+                        setDialog.show(3, "最大");
+                        break;
+                }
                 break;
             case R.id.open_speed:
                 setDialog.show(5, intent.getStringExtra("openDoorSpeed"));
