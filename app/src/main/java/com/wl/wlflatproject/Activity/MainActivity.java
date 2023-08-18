@@ -519,14 +519,14 @@ public class MainActivity extends AppCompatActivity {
                 handler.sendEmptyMessageDelayed(13, 500);
                 break;
             case R.id.video_iv:
+                if (!isFastClick()) {
+                    Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (!isPlaying) {
                     //打开视频
                     if(deviceList.size()==0){
                         deviceList = QtimesServiceManager.getCameraList(MainActivity.this, QtimesServiceManager.DoorEyeCamera);
-                    }
-                    if (!isFastClick()) {
-                        Toast.makeText(MainActivity.this, "请稍后点击", Toast.LENGTH_SHORT).show();
-                        return;
                     }
                     if (deviceList.size() == 0) {
                         Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
@@ -1857,7 +1857,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean isFastClick() {
         boolean flag = false;
         long curClickTime = System.currentTimeMillis();
-        if ((curClickTime - lastClickTime) >= 3000) {
+        if ((curClickTime - lastClickTime) >= 1000) {
             flag = true;
         }
         lastClickTime = curClickTime;
@@ -1916,6 +1916,7 @@ public class MainActivity extends AppCompatActivity {
                     setFullScreen();
                     handler.removeMessages(1);
                     handler.sendEmptyMessageDelayed(1, 120000);
+                    handler.removeMessages(3);
                     wakeLock.acquire();
                 }
             }, 0);
