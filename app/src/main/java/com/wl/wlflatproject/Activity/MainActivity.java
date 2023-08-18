@@ -1866,7 +1866,7 @@ public class MainActivity extends AppCompatActivity {
     private final USBMonitor.OnDeviceConnectListener mOnDeviceConnectListener = new USBMonitor.OnDeviceConnectListener() {
         @Override
         public void onAttach(final UsbDevice device) {
-            Toast.makeText(MainActivity.this, "USB_DEVICE_ATTACHED", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "USB_DEVICE_ATTACHED", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -1957,10 +1957,10 @@ public class MainActivity extends AppCompatActivity {
                     mPreviewSurface.release();
                     mPreviewSurface = null;
                 }
+                isPlaying = false;
+                Log.e("测试", "---yingc");
             }
         });
-        isPlaying = false;
-        Log.e("测试", "---yingc");
     }
 
     protected final synchronized void queueEvent(final Runnable task, final long delayMillis) {
