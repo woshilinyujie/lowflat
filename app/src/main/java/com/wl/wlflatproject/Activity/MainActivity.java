@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
@@ -329,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaplayer;
     private List<DeviceFilter> filter;
     private PasswardDialog passwardDialog;
+    private PowerManager.WakeLock wakeLock;
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -342,7 +344,10 @@ public class MainActivity extends AppCompatActivity {
         Sync();
     }
 
+    @SuppressLint("InvalidWakeLockTag")
     private void initData() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "MyTag");
         mediaplayer = MediaPlayer.create(this, R.raw.alarm);
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
         mUSBMonitor.register();
@@ -523,8 +528,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "未检测到摄像头", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    handler.removeMessages(1);
-                    handler.sendEmptyMessageDelayed(1, 120000);
                     Set<Integer> set = deviceList.keySet();
                     set.iterator().next();
                     mUSBMonitor.requestPermission(deviceList.get( set.iterator().next()));
@@ -857,8 +860,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         } else if (data.contains("AT+CDWAKE=1")) {    //有人   但是不打开视频
                         } else if (data.contains("AT+CDBELL=1")) {   //门铃
-                            handler.removeMessages(1);
-                            handler.sendEmptyMessageDelayed(1, 120000);
                             Log.e("有人按门铃", "..");
 
 
@@ -896,8 +897,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (split1[1].equals("0")) {//人离开
 
                                     } else {//人靠近
-                                        handler.removeMessages(1);
-                                        handler.sendEmptyMessageDelayed(1, 120000);
                                         Log.e("检测有人", "..");
                                         if(deviceList.size()==0){
                                             return;
@@ -1911,6 +1910,9 @@ public class MainActivity extends AppCompatActivity {
                     codeBt.setVisibility(View.GONE);
                     videoPlayView.setVisibility(View.VISIBLE);
                     setFullScreen();
+                    handler.removeMessages(1);
+                    handler.sendEmptyMessageDelayed(1, 120000);
+                    wakeLock.acquire(121000);
                 }
             }, 0);
         }
@@ -1932,6 +1934,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private synchronized void releaseCamera() {
+        wakeLock.release();
         time.setVisibility(View.VISIBLE);
         codeBt.setVisibility(View.VISIBLE);
         videoPlayView.setVisibility(View.INVISIBLE);
