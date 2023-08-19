@@ -17,8 +17,7 @@ public class SetDialog extends Dialog {
     private String s[] = new String[]{"67", "72", "77", "82", "87", "92", "97", "102", "107", "112", "117", "122", "127",
             "132", "137", "142", "147", "152", "157", "162", "167", "172", "177", "182", "187"};//修正角度
     private String s1[] = new String[]{"4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"};//速度
-    //    private String s2[] = new String[]{"72", "77", "82", "87"};//开门角度
-    private String s2[] = new String[]{"小", "适中", "大", "最大"};//开门角度
+    private String s2[] = new String[]{"72", "77", "82", "87"};//开门角度
     private String s3[] = new String[]{"2", "4", "6", "8", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30"};//等待时间
     private String s4[] = new String[]{"减速一档", "减速二档", "减速三档", "减速关闭"};//关门力度
     private String s5[] = new String[]{"低", "中", "高"};//设置防夹检测范围
@@ -51,22 +50,6 @@ public class SetDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 value = start.getContentByCurrValue();
-                if(flag==3){
-                    switch (value){
-                        case "小":
-                            value="72";
-                            break;
-                        case "适中":
-                            value="77";
-                            break;
-                        case "大":
-                            value="82";
-                            break;
-                        case "最大":
-                            value="87";
-                            break;
-                    }
-                }
                 listener.onResult(value, flag);
                 dismiss();
             }
@@ -76,12 +59,12 @@ public class SetDialog extends Dialog {
 
     public int getIndex(String ss[], String value) {
         int index=0;
-            for(int x=0;x< ss.length;x++){
-                if(ss[x].equals(value)){
-                    index=x;
-                }
+        for(int x=0;x< ss.length;x++){
+            if(ss[x].equals(value)){
+                index=x;
             }
-            return index;
+        }
+        return index;
     }
 
     public void show(int flag, String value) {
