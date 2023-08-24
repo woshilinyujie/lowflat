@@ -26,7 +26,7 @@
             android:includeFontPadding="false"
             android:text="今天"
             android:textColor="#31ABD3"
-            android:textSize="@dimen/sp_22" />
+            android:textSize="24dp" />
 
         <View
             android:id="@+id/weather_view"
@@ -45,7 +45,7 @@
             android:includeFontPadding="false"
             android:text="36/29℃"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_26" />
+            android:textSize="28dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
                 android:includeFontPadding="false"
                 android:text="晴天"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="24dp" />
 
             <TextView
                 android:id="@+id/air_quality_tv"
@@ -78,7 +78,7 @@
                 android:paddingBottom="@dimen/dp_1"
                 android:text="重度污染"
                 android:textColor="#05A545"
-                android:textSize="@dimen/sp_18" />
+                android:textSize="20dp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

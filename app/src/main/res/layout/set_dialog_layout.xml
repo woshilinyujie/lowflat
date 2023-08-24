@@ -35,7 +35,7 @@
             android:layout_marginLeft="@dimen/dp_20"
             android:text="--"
             android:textColor="#26b275"
-            android:textSize="@dimen/sp_18" />
+            android:textSize="20dp" />
     </RelativeLayout>
 
 
@@ -54,9 +54,9 @@
         app:npv_TextColorHint="#27B275"
         app:npv_TextColorNormal="#b3b3b3"
         app:npv_TextColorSelected="#27B275"
-        app:npv_TextSizeHint="@dimen/sp_12"
-        app:npv_TextSizeNormal="@dimen/sp_16"
-        app:npv_TextSizeSelected="@dimen/sp_22"
+        app:npv_TextSizeHint="13dp"
+        app:npv_TextSizeNormal="18dp"
+        app:npv_TextSizeSelected="24dp"
         app:npv_WrapSelectorWheel="false" />
 
     <Button
@@ -69,7 +69,7 @@
         android:layout_marginRight="@dimen/dp_30"
         android:background="@drawable/shape_radius_4_26b275"
         android:text="完成"
-        android:textSize="@dimen/sp_14" />
+        android:textSize="16dp" />
 
 
 </LinearLayout>

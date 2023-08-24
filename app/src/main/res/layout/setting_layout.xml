@@ -35,7 +35,7 @@
                 android:layout_marginLeft="@dimen/dp_20"
                 android:text="专业校正"
                 android:textColor="#26b275"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="22dp" />
 
         </RelativeLayout>
 
@@ -52,7 +52,7 @@
                 android:layout_centerVertical="true"
                 android:text="最大开门角度"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/open_degree_tv"
@@ -63,7 +63,7 @@
                 android:layout_marginRight="@dimen/dp_25"
                 android:text="--°"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <ImageView
                 android:layout_width="@dimen/dp_9"
@@ -93,7 +93,7 @@
                 android:layout_centerVertical="true"
                 android:text="开门速度"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/open_speed_tv"
@@ -104,7 +104,7 @@
                 android:layout_marginRight="@dimen/dp_25"
                 android:text="--°"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <ImageView
                 android:layout_width="@dimen/dp_9"
@@ -132,7 +132,7 @@
                 android:layout_centerVertical="true"
                 android:text="关门速度"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/close_speed_tv"
@@ -143,7 +143,7 @@
                 android:layout_marginRight="@dimen/dp_25"
                 android:text="--°"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <ImageView
                 android:layout_width="@dimen/dp_9"
@@ -174,7 +174,7 @@
                 android:layout_centerVertical="true"
                 android:text="关门力度"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/close_power_tv"
@@ -185,7 +185,7 @@
                 android:layout_marginRight="@dimen/dp_25"
                 android:text="--°"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <ImageView
                 android:layout_width="@dimen/dp_9"
@@ -212,7 +212,7 @@
 
             <TextView
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_centerVertical="true"
                 android:text="关门位置修复（左开门）"
                 android:layout_width="wrap_content"
@@ -225,7 +225,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -252,7 +252,7 @@
 
             <TextView
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_centerVertical="true"
                 android:text="关门位置修复（右开门）"
                 android:layout_width="wrap_content"
@@ -265,7 +265,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -292,7 +292,7 @@
 
             <TextView
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_centerVertical="true"
                 android:text="开门角度修复值"
                 android:layout_width="wrap_content"
@@ -305,7 +305,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -333,7 +333,7 @@
 
             <TextView
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_centerVertical="true"
                 android:text="设置防夹检测范围"
                 android:layout_width="wrap_content"
@@ -346,7 +346,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16"
+                android:textSize="18dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 

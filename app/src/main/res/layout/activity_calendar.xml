@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:text="7月"
-            android:textSize="52sp" />
+            android:textSize="52dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -41,7 +41,7 @@
                 android:includeFontPadding="false"
                 android:text="周二"
                 android:textColor="#31ABD3"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="22dp" />
 
             <TextView
                 android:id="@+id/current_year_tv"
@@ -51,7 +51,7 @@
                 android:includeFontPadding="false"
                 android:text="2019年"
                 android:textColor="#31ABD3"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="22dp" />
         </LinearLayout>
 
         <ImageView
@@ -80,8 +80,8 @@
         app:current_day_text_color="@color/white"
         app:current_month_lunar_text_color="#AAAEB2"
         app:current_month_text_color="@color/white"
-        app:day_text_size="@dimen/sp_24"
-        app:lunar_text_size="@dimen/sp_14"
+        app:day_text_size="22dp"
+        app:lunar_text_size="14dp"
         app:month_view="com.wl.wlflatproject.MView.FlatMonthView"
         app:month_view_auto_select_day="first_day_of_month"
         app:month_view_show_mode="mode_fix"
@@ -96,7 +96,7 @@
         app:week_line_background="@color/white"
         app:week_line_margin="@dimen/dp_38"
         app:week_text_color="#AAAEB2"
-        app:week_text_size="@dimen/sp_20"
+        app:week_text_size="20dp"
         app:week_view="com.wl.wlflatproject.MView.FlatMonthView" />
 
     <LinearLayout
@@ -123,7 +123,7 @@
                 android:layout_weight="1"
                 android:text="农历-四月-初三"
                 android:textColor="#31ABD3"
-                android:textSize="@dimen/sp_25" />
+                android:textSize="25dp" />
 
             <TextView
                 android:id="@+id/temp_tv"
@@ -131,22 +131,22 @@
                 android:layout_height="wrap_content"
                 android:text="29℃"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_25" />
+                android:textSize="25dp" />
 
             <TextView
                 android:id="@+id/weather_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dp_17"
+                android:layout_marginLeft="17dp"
                 android:text="晴"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_25" />
+                android:textSize="25dp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_14">
+            android:layout_marginTop="14dp">
 
             <TextView
                 android:id="@+id/gan_zhi_tv"
@@ -155,7 +155,7 @@
                 android:layout_weight="1"
                 android:text="己亥猪年 辛未月 辛酉日"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="22dp" />
 
             <TextView
                 android:id="@+id/location_tv"
@@ -163,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:text="滨江区"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="22dp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -198,7 +198,7 @@
                 android:includeFontPadding="false"
                 android:text="一次选择  一生守护"
                 android:textColor="#05A545"
-                android:textSize="@dimen/sp_28"
+                android:textSize="28dp"
                 android:textStyle="bold" />
 
             <TextView
@@ -208,7 +208,7 @@
                 android:includeFontPadding="false"
                 android:text="One choice   Lifetime guard"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_20"
+                android:textSize="20dp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

@@ -33,7 +33,7 @@
                 android:layout_marginLeft="@dimen/dp_20"
                 android:text="重置屋内人数"
                 android:textColor="#26b275"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="22dp" />
 
         </RelativeLayout>
 
@@ -54,7 +54,7 @@
         android:layout_centerVertical="true"
         android:text="重置屋内人数"
         android:textColor="#26b275"
-        android:textSize="@dimen/sp_18" />
+        android:textSize="20dp" />
 
 
     <TextView
@@ -65,7 +65,7 @@
         android:layout_centerVertical="true"
         android:text="第一步：关门"
         android:textColor="#AAAEB2"
-        android:textSize="@dimen/sp_16" />
+        android:textSize="18dp" />
     <TextView
         android:layout_marginLeft="@dimen/dp_27"
         android:layout_marginTop="@dimen/dp_25"
@@ -74,7 +74,7 @@
         android:layout_centerVertical="true"
         android:text="第二步：输入当前实际屋内人数"
         android:textColor="#AAAEB2"
-        android:textSize="@dimen/sp_16" />
+        android:textSize="18dp" />
     <TextView
         android:layout_marginBottom="@dimen/dp_27"
         android:layout_marginLeft="@dimen/dp_27"
@@ -84,7 +84,7 @@
         android:layout_centerVertical="true"
         android:text="第三步：保存"
         android:textColor="#AAAEB2"
-        android:textSize="@dimen/sp_16" />
+        android:textSize="18dp" />
 
 
 
@@ -102,7 +102,7 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:text="当前屋内实际人数"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_17"
+                android:textSize="19dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <EditText
@@ -113,7 +113,7 @@
                 android:hint="请输入当前屋内人数"
                 android:textColorHighlight="#AAAEB2"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_14"
+                android:textSize="16dp"
                 android:background="@null"
                 android:layout_marginRight="@dimen/dp_10"
                 android:layout_marginLeft="@dimen/dp_10"
@@ -134,7 +134,7 @@
             android:gravity="center"
             android:id="@+id/save"
             android:text="保存"
-            android:textSize="@dimen/sp_16"
+            android:textSize="18dp"
             android:textColor="@color/white"
             android:background="@drawable/shape_radius_4_26b275"
             android:layout_marginRight="@dimen/dp_20"

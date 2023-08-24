@@ -34,7 +34,7 @@
         android:layout_marginLeft="@dimen/dp_10"
         android:layout_marginRight="@dimen/dp_10"
         android:layout_marginBottom="@dimen/dp_20"
-        android:textSize="@dimen/sp_15"
+        android:textSize="17dp"
         android:layout_gravity="center"
         android:textColor="@color/white"
         android:text="留言时长还剩%d秒"

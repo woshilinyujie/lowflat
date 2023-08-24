@@ -31,7 +31,7 @@
                 android:layout_weight="1"
                 android:text="--"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_24" />
+                android:textSize="26dp" />
 
             <ImageView
                 android:id="@+id/back_iv"
@@ -62,7 +62,7 @@
                 android:includeFontPadding="false"
                 android:text="-"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_80" />
+                android:textSize="88dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
                 android:includeFontPadding="false"
                 android:text="°"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_80" />
+                android:textSize="88dp" />
 
             <TextView
                 android:id="@+id/weather_tv"
@@ -80,7 +80,7 @@
                 android:includeFontPadding="false"
                 android:text="晴"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_48" />
+                android:textSize="55dp" />
         </LinearLayout>
 
         <RelativeLayout
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:text="- -"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_24" />
+                android:textSize="27dp" />
 
             <TextView
                 android:id="@+id/future_rain_tv"
@@ -106,7 +106,7 @@
                 android:layout_alignParentRight="true"
                 android:text="-"
                 android:textColor="#AAAEB2"
-                android:textSize="@dimen/sp_24" />
+                android:textSize="27dp" />
         </RelativeLayout>
 
 
@@ -135,7 +135,7 @@
             android:layout_marginTop="@dimen/dp_20"
             android:text="24小时预报"
             android:textColor="#31ABD3"
-            android:textSize="@dimen/sp_22" />
+            android:textSize="23dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hour_weather_rv"

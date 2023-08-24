@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="时代发生的发生"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="22dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
             android:layout_alignParentRight="true"
             android:text="今日"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_18" />
+            android:textSize="20dp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -63,7 +63,7 @@
                 android:includeFontPadding="false"
                 android:text="11"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_50" />
+                android:textSize="54dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
                 android:includeFontPadding="false"
                 android:text="°"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_28" />
+                android:textSize="31dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -92,7 +92,7 @@
                 android:includeFontPadding="false"
                 android:text="晴"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="22dp" />
 
             <TextView
                 android:id="@+id/today_extent_tv"
@@ -101,7 +101,7 @@
                 android:layout_marginTop="@dimen/dp_10"
                 android:text="-°/-°"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="22dp" />
         </LinearLayout>
 
 
@@ -130,7 +130,7 @@
             android:gravity="center"
             android:text="- · -"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="22dp" />
 
         <TextView
             android:id="@+id/second_day_tv"
@@ -140,7 +140,7 @@
             android:layout_centerVertical="true"
             android:text="-° /  -°"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="22dp" />
 
         <View
             android:id="@+id/second_day_view"
@@ -167,7 +167,7 @@
             android:gravity="center"
             android:text="- · -"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="22dp" />
 
         <TextView
             android:id="@+id/third_day_tv"
@@ -177,7 +177,7 @@
             android:layout_centerVertical="true"
             android:text="-° /  -°"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="22dp" />
 
         <View
             android:id="@+id/third_day_view"

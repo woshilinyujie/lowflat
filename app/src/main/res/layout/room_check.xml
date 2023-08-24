@@ -33,7 +33,7 @@
                 android:layout_marginLeft="@dimen/dp_20"
                 android:text="屋内人数检测"
                 android:textColor="#26b275"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="22dp" />
 
         </RelativeLayout>
 
@@ -52,7 +52,7 @@
                 android:layout_centerVertical="true"
                 android:text="屋内人数检测"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <com.suke.widget.SwitchButton
                 android:id="@+id/switch_bt"
@@ -89,7 +89,7 @@
                 android:layout_centerVertical="true"
                 android:text="当前屋内人数"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/num_tv"
@@ -100,7 +100,7 @@
                 android:layout_centerVertical="true"
                 android:text="未知"
                 android:textColor="#AAAeb2"
-                android:textSize="@dimen/sp_16" />
+                android:textSize="18dp" />
 
             <View
                 android:layout_width="match_parent"
@@ -114,7 +114,7 @@
             android:gravity="center"
             android:id="@+id/reset"
             android:text="重置屋内人数"
-            android:textSize="@dimen/sp_16"
+            android:textSize="18dp"
             android:textColor="@color/white"
             android:background="@drawable/shape_radius_4_26b275"
             android:layout_marginRight="@dimen/dp_20"
