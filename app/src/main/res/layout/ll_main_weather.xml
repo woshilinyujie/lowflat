@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="--"
             android:textColor="@color/white"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
             android:layout_alignParentRight="true"
             android:text="今日"
             android:textColor="@color/white"
-            android:textSize="13dp" />
+            android:textSize="11dp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -61,7 +61,7 @@
                 android:includeFontPadding="false"
                 android:text="11"
                 android:textColor="@color/white"
-                android:textSize="31dp" />
+                android:textSize="28dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -69,7 +69,7 @@
                 android:includeFontPadding="false"
                 android:text="°"
                 android:textColor="@color/white"
-                android:textSize="31dp" />
+                android:textSize="28dp" />
         </LinearLayout>
 
 
@@ -91,14 +91,14 @@
                 android:includeFontPadding="false"
                 android:text="晴"
                 android:textColor="@color/white"
-                android:textSize="14dp" />
+                android:textSize="12dp" />
 
             <TextView
                 android:id="@+id/today_extent_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="-°/-°"
-                android:textSize="14dp"
+                android:textSize="12dp"
                 android:textColor="@color/white"
                 android:layout_marginTop="@dimen/dp_10" />
         </LinearLayout>
@@ -122,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="- · -"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textColor="@color/white"
             android:layout_toRightOf="@id/second_day_view"
             android:layout_toLeftOf="@+id/second_day_tv"
@@ -134,7 +134,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-° /  -°"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textColor="@color/white"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" />
@@ -159,7 +159,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="- · -"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/third_day_view"
@@ -171,7 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-° /  -°"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textColor="@color/white"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" />

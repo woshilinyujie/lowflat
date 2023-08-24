@@ -52,7 +52,7 @@
             android:gravity="center"
             android:text="设置"
             android:textColor="#1fc19a"
-            android:textSize="16dp"
+            android:textSize="14dp"
             android:visibility="gone" />
         <ImageView
             android:id="@+id/code_bt"
@@ -114,7 +114,7 @@
                 android:layout_marginLeft="@dimen/dp_5"
                 android:text="当前室内人数："
                 android:textColor="#1FC19A"
-                android:textSize="13dp" />
+                android:textSize="11dp" />
 
         </LinearLayout>
 
@@ -149,7 +149,7 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:text="开锁"
                 android:textColor="#ffffff"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -176,7 +176,7 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:text="单开"
                 android:textColor="#ffffff"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -203,7 +203,7 @@
                 android:layout_marginLeft="@dimen/dp_10"
                 android:text="双开"
                 android:textColor="#ffffff"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -229,7 +229,7 @@
                 android:layout_marginLeft="10dp"
                 android:text="视频"
                 android:textColor="#ffffff"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -243,7 +243,7 @@
             android:gravity="center"
             android:text="常开"
             android:textColor="#ffffff"
-            android:textSize="21dp"
+            android:textSize="19dp"
             android:textStyle="bold" />
 
         <ImageView
