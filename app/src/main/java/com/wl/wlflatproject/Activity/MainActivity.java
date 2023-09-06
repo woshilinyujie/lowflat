@@ -339,6 +339,9 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initData();
         initCalendar();
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+        wl.acquire();
         hideBottomUIMenu();
         Sync();
     }
