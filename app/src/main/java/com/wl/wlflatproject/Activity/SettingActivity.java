@@ -159,6 +159,7 @@ public class SettingActivity extends AppCompatActivity {
                 break;
 
         }
+        setResult(300, getIntent());
     }
 
     @Override
@@ -175,7 +176,6 @@ public class SettingActivity extends AppCompatActivity {
         }
         switch (view.getId()) {
             case R.id.back:
-                setResult(300, getIntent());
                 finish();
                 break;
             case R.id.level:
