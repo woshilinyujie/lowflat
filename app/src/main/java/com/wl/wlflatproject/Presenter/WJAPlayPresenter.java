@@ -436,6 +436,8 @@ public class WJAPlayPresenter implements OnVideoViewListener,
             time.setVisibility(View.VISIBLE);
             codeBt.setVisibility(View.VISIBLE);
             context.setScreen();
+//            context.handler.removeMessages(18);
+//            context.handler.sendEmptyMessage(18);
             Log.e("监测---：", "控件隐藏");
         }
         stopMonitor();

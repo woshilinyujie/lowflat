@@ -106,7 +106,8 @@
         <activity android:name=".Activity.RoomCheckActivity" />
         <activity android:name=".Activity.ResetActivity" />
         <activity
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale|screenLayout|mcc|mnc"
             android:name=".Activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>

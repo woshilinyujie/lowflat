@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -301,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
                 case 17:
                     initSerialPort();
                     break;
+                case 18:
+                    mediaplayer.pause();
             }
         }
     };
@@ -331,6 +334,7 @@ public class MainActivity extends AppCompatActivity {
     private IntentFilter intentFilter;
     private float plankVersionCode;
     public boolean isFirstSetScreen=true;
+    private MediaPlayer mediaplayer;
     @SuppressLint("InvalidWakeLockTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -347,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
+        mediaplayer = MediaPlayer.create(this, R.raw.alarm);
         threads = Executors.newFixedThreadPool(5);
         wjaPlayPresenter = new WJAPlayPresenter();
         normalDialog = new NormalDialog(this, R.style.mDialog);
@@ -871,6 +876,13 @@ public class MainActivity extends AppCompatActivity {
                                     wjaPlayPresenter.queryWAJToken(false);
                                 }
                             }
+
+                            //门铃声音
+                            if(!mediaplayer.isPlaying()){
+                                mediaplayer.setLooping(true);//设置为循环播放
+                                mediaplayer.start();
+                                handler.sendEmptyMessageDelayed(18,5000);
+                            }
                         } else if (data.contains("AT+CLOSESTRENGTH=1")) {         //关门力度
                             if (setMsgBean == null)
                                 setMsgBean = new SetMsgBean();
@@ -1203,6 +1215,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        mediaplayer.stop();
+        mediaplayer.release();
         try {
             if (fout != null) {
                 fout.close();
@@ -1222,6 +1236,7 @@ public class MainActivity extends AppCompatActivity {
         handler.removeMessages(2);
         handler.removeMessages(3);
         handler.removeMessages(4);
+        handler.removeMessages(18);
         Log.e("串口；","ondestroy");
         serialPort.close();
         serialPort.flag = false;
