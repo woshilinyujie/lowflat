@@ -28,7 +28,6 @@ public class RbMqUtils {
     private ConnectionFactory factory = new ConnectionFactory();
     private Thread publishThread;
     private Thread subscribeThread;
-    private Connection connectionAccept;
     private OnRbMsgListener listener;
     private Connection connection;
     private String isConnection ="+CGATT:0";//0断开1链接
@@ -36,6 +35,8 @@ public class RbMqUtils {
     public boolean flag=true;
     public static String MQIP="rmq.wonlycloud.com";
     public boolean connect=true;
+    private Channel channel;
+
     public void RbMqUtils() {
 
     }
@@ -44,10 +45,10 @@ public class RbMqUtils {
      * 连接设置
      */
     public void setUpConnectionFactory() {
-        factory.setHost(MQIP);//主机地址
+//        factory.setHost(MQIP);//主机地址
 //        factory.setHost("rmq-test.wonlycloud.com");//灰度1
-//        factory.setHost("116.62.46.10");//测试
-
+//        factory.setHost("1rmq-test.wonlycloud.com");//测试
+        factory.setHost("47.99.54.211");//开发
         factory.setPort(5672);// 端口号
         factory.setUsername("android");// 用户名
         factory.setPassword("Wl2016822");// 密码
@@ -70,20 +71,33 @@ public class RbMqUtils {
             try {
                 // 创建连接
                 Log.e("mq----","开始创建mq发送端");
-                connectionAccept = factory.newConnection();
+                synchronized (Connection.class) {
+                    if (connection == null ) {
+                        connection = factory.newConnection();
+                    }else if(!connection.isOpen()){
+                        connection.abort();
+                        setUpConnectionFactory();
+                        connection=factory.newConnection();
+                        channel = connection.createChannel();
+                    }
+                }
                 // 创建通道
-                Channel ch = connectionAccept.createChannel();
-                ch.confirmSelect();
+                synchronized (Connection.class) {
+                    if (channel == null) {
+                        channel = connection.createChannel();
+                    }
+                }
+                channel.confirmSelect();
                 // 发布消息
-                ch.exchangeDeclare("Device2Srv_ex", "fanout", true);
-                ch.queueBind("Device2Srv_queue", "Device2Srv_ex", "");
+                channel.exchangeDeclare("Device2Srv_ex", "fanout", true);
+                channel.queueBind("Device2Srv_queue", "Device2Srv_ex", "");
                 Log.e("mq---","创建mq发送端成功");
                 while (flag) {
                     String message = queue.takeFirst();
                     Log.e("队列拿到发送服务器","------"+message);
                     try {
-                        ch.basicPublish("Device2Srv_ex", routingKey, null, message.getBytes());
-                        ch.waitForConfirmsOrDie();
+                        channel.basicPublish("Device2Srv_ex", routingKey, null, message.getBytes());
+                        channel.waitForConfirmsOrDie();
                     } catch(Exception e){
                         queue.putFirst(message);
 
@@ -147,9 +161,22 @@ public class RbMqUtils {
             try {
                 //使用之前的设置，建立连接
                 Log.e("mq----","开始创建mq接收端");
-                connection = factory.newConnection();
+                synchronized (Connection.class) {
+                    if (connection == null) {
+                        connection = factory.newConnection();
+                    }else if(!connection.isOpen()){
+                        connection.abort();
+                        setUpConnectionFactory();
+                        connection=factory.newConnection();
+                        channel = connection.createChannel();
+                    }
+                }
                 //创建一个通道
-                Channel channel = connection.createChannel();
+                synchronized (Connection.class) {
+                    if (channel == null) {
+                        channel = connection.createChannel();
+                    }
+                }
                 //一次只发送一个，处理完成一个再获取z下一个
                 channel.basicQos(1);
 
@@ -199,7 +226,7 @@ public class RbMqUtils {
        new Thread(new Runnable() {
            @Override
            public void run() {
-               if(subscribeThread!=null||connection!=null||connectionAccept!=null){
+               if(subscribeThread!=null||connection!=null){
                    try {
                        if(subscribeThread!=null){
                            subscribeThread.interrupt();
@@ -207,11 +234,12 @@ public class RbMqUtils {
                        if(connection!=null && connection.isOpen()){
                            connection.close();
                        }
-                       if(connectionAccept!=null&&connectionAccept.isOpen()){
-                           connectionAccept.close();
-                       }
+
                    }catch (Exception e){
                        Log.e("关闭报错",e.toString());
+                   }finally {
+                       connection = null;
+                       channel = null;
                    }
                }
            }
